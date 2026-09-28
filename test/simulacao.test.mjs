@@ -228,3 +228,40 @@ test('nenhum nó sacode: velocidade máxima baixa, com a respiração ligada', {
     }
   }
 });
+
+test('inserir: nó novo entra vivo, com parentesco, constelação, trilha e cor', () => {
+  const g = buildGraph(tree, cross, { rng: mulberry32(3) });
+  rodar(g, 10);
+  const agentes = g.bySlug.get('agentes');
+  const dominio = g.nodes[agentes.parent];
+  const antes = { nos: g.nodes.length, arestas: g.links.length };
+
+  const novo = g.inserir({ slug: 'planejamento', label: 'Planejamento', status: 'vazio' }, 'agentes', { elapsed: 10000 });
+  assert.equal(g.nodes.length, antes.nos + 1);
+  assert.equal(g.links.length, antes.arestas + 1);
+  assert.equal(g.bySlug.get('planejamento'), novo);
+  assert.equal(novo.depth, agentes.depth + 1);
+  assert.equal(novo.h, agentes.h, 'herda a cor da sub-área');
+  assert.equal(novo.alive, 0, 'nasce invisível e cresce, como na expansão');
+  assert.ok(g.neighbors[agentes.id].has(novo.id));
+  assert.ok(g.constellation[dominio.id].has(novo.id), 'o hover no domínio acende o nó novo');
+  assert.ok(g.constellation[g.core.id].has(novo.id));
+  assert.deepEqual(g.path[novo.id], [...g.path[agentes.id], agentes.label]);
+  assert.equal(g.inserir({ slug: 'planejamento', label: 'Planejamento' }, 'agentes'), novo, 'inserir de novo não duplica');
+
+  // a física absorve o nó: ele se afasta do pai e nada vira NaN
+  const sim = createSimulation(g, { rng: mulberry32(4) });
+  let t = 10000;
+  for (let i = 0; i < 20 * 60; i++) { t += 16.6667; sim.step(1, t); }
+  assert.equal(g.nodes.filter((n) => !Number.isFinite(n.x)).length, 0);
+  assert.equal(novo.alive, 1);
+  assert.ok(Math.hypot(novo.x - agentes.x, novo.y - agentes.y) > 30, 'saiu de cima do pai');
+});
+
+test('inserir domínio novo: retingir dá a ele o arco da árvore nova', () => {
+  const g = buildGraph(tree, cross, { rng: mulberry32(3) });
+  const arvore = { ...tree, children: [...tree.children, { label: 'Python', slug: 'python', hue: [110, 165], children: [] }] };
+  const py = g.inserir({ slug: 'python', label: 'Python' }, 'caderno', { arvore });
+  assert.equal(py.depth, 1);
+  assert.equal(py.h, (110 + 165) / 2);
+});

@@ -51,7 +51,7 @@ flowchart LR
   B --> G["src/data/caderno.gen.js<br/>a lista"]
   G --> N["navegador<br/>o universo"]
   F["src/data/fisica.js<br/>a física evoluída"] --> N
-  N -- "Editar → Salvar" --> S["tools/serve.mjs<br/>o carteiro"]
+  N -- "Editar · + Novo" --> S["tools/serve.mjs<br/>o carteiro"]
   S -- "grava a folha e chama o tradutor" --> V
   V --> E["tools/evolve.mjs<br/>o treinador"]
   E --> F
@@ -189,7 +189,7 @@ micrograd: um subconjunto pequeno e testado, em vez de uma biblioteca inteira.
 
 ### O carteiro (`tools/serve.mjs`)
 
-É o equivalente a um servidor Flask com duas rotas:
+É o equivalente a um servidor Flask com três rotas:
 
 ```python
 @app.get("/api/nota")
@@ -200,7 +200,21 @@ def gravar(slug, corpo, status):
     escrever_md(slug, corpo, status)     # preserva o frontmatter
     reconstruir()                        # roda o tradutor de novo
     return {"html": ..., "arestas": ...}
+
+@app.post("/api/nota")
+def criar(pai, nome):
+    plano = planejar(pai, validar(nome)) # onde nasce; se o pai é tópico, vira pasta
+    try:
+        executar(plano)                  # move, cria o .md
+        reconstruir()
+    except Exception:
+        desfazer(plano)                  # o vault nunca fica ilegível
+        raise
+    return {"nota": ..., "arvore": ...}
 ```
+
+As regras de nome e o plano ficam em `tools/lib/criar.mjs`, sem tocar no
+disco — por isso dá para testá-las sem montar um vault.
 
 Além disso, ele serve os arquivos do site. Por segurança, só aceita conexões
 da sua própria máquina e só grava dentro de `vault/`.
@@ -239,6 +253,7 @@ genomas que só tiveram sorte. O resultado completo está em
 | `render.js` | desenha no canvas: fundo, arestas, bolinhas, rótulos |
 | `panel.js` | o painel lateral que abre ao clicar num nó |
 | `editor.js` | o modo Editar/Salvar do painel |
+| `criador.js` | o botão + Novo e o formulário de nota nova |
 | `interaction.js` | mouse, toque e teclado |
 | `viewport.js` | a câmera: zoom e posição |
 | `palette.js` | as cores, lidas do CSS |
@@ -250,7 +265,8 @@ genomas que só tiveram sorte. O resultado completo está em
 | quero… | abro |
 |---|---|
 | escrever uma nota | o caderno no navegador → Editar |
-| criar um domínio novo (Python, ML…) | uma pasta nova em `vault/`, com a nota-de-pasta e `matiz` (o README explica) |
+| criar um assunto novo | no caderno: clique no nó onde ele se encaixa → **+ Novo tópico** |
+| criar um domínio novo (Python, ML…) | no caderno: clique na raiz → **+ Novo domínio** |
 | ligar dois assuntos | escrevo `[[Nome da nota]]` no texto |
 | mudar o que conta como "bonito" | `PESOS` em `tools/lib/aptidao.mjs`, depois `npm run evolve` |
 | mudar as faixas dos genes | `GENES` em `tools/lib/genetico.mjs` |

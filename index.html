@@ -44,8 +44,19 @@
     <div class="panel-meta">
       <p class="panel-status" id="panel-status" hidden></p>
       <button class="panel-edit" id="panel-edit" type="button" hidden>Editar</button>
+      <button class="panel-edit panel-novo" id="panel-novo" type="button" hidden>+ Novo tópico</button>
       <p class="panel-aviso" id="panel-aviso" aria-live="polite" hidden></p>
     </div>
+    <form class="novo" id="novo" hidden>
+      <label class="novo-rotulo" id="novo-rotulo" for="novo-nome">Nome do tópico novo</label>
+      <div class="novo-linha">
+        <input id="novo-nome" type="text" maxlength="80" autocomplete="off" spellcheck="false">
+        <button type="submit" class="novo-criar" id="novo-criar">Criar</button>
+        <button type="button" class="novo-cancelar" id="novo-cancelar">Cancelar</button>
+      </div>
+      <p class="novo-dica" id="novo-dica" hidden></p>
+      <p class="novo-msg" id="novo-msg" aria-live="polite"></p>
+    </form>
     <div id="panel-view">
       <div class="panel-body" id="panel-body"></div>
       <div class="panel-links" id="panel-links"></div>

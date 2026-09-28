@@ -152,3 +152,77 @@ test('montarNota: preserva chaves desconhecidas e comentários; cria frontmatter
   assert.equal(montarNota(null, { corpo: '', slug: 'z' }),
     '---\nslug: z\nstatus: vazio\n---\n');
 });
+
+/* ---- criar notas ---- */
+
+const post = (pai, nome) => fetch(`${base}/api/nota`, {
+  method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pai, nome })
+});
+const noVault = (rel) => join(dir, 'vault', rel);
+const existe = (rel) => readFile(noVault(rel)).then(() => true, () => false);
+
+test('criar tópico numa sub-área: arquivo novo e resposta com árvore', async () => {
+  const r = await post('agentes', 'Planejamento');
+  assert.equal(r.status, 201);
+  const d = await r.json();
+  assert.equal(d.nota.slug, 'planejamento');
+  assert.equal(d.nota.profundidade, 3);
+  assert.equal(d.arquivo, 'Engenharia de IA/Agentes/Planejamento.md');
+  assert.equal(d.promovido, null);
+  assert.equal(await readFile(noVault(d.arquivo), 'utf8'), '---\nslug: planejamento\nstatus: vazio\n---\n');
+  const agentes = d.tree.children.find((x) => x.slug === 'engenharia-de-ia').children.find((x) => x.slug === 'agentes');
+  assert.ok(agentes.children.some((x) => x.slug === 'planejamento'));
+});
+
+test('criar filho de um tópico promove o tópico a pasta, sem perder texto nem links', async () => {
+  await put('api', { corpo: 'Contrato entre sistemas.', status: 'rascunho' });
+  const r = await post('api', 'REST');
+  assert.equal(r.status, 201);
+  const d = await r.json();
+  assert.equal(d.promovido, 'Arquitetura/Interface/API/API.md');
+  assert.equal(await existe('Arquitetura/Interface/API.md'), false, 'o arquivo antigo saiu do lugar');
+  const movido = await readFile(noVault('Arquitetura/Interface/API/API.md'), 'utf8');
+  assert.match(movido, /slug: api\nstatus: rascunho/);
+  assert.match(movido, /Contrato entre sistemas\./);
+  assert.ok(await existe('Arquitetura/Interface/API/REST.md'));
+});
+
+test('salvar um tópico logo depois de promovido grava no caminho novo', async () => {
+  const r = await put('api', { corpo: 'Versão 2.' });
+  assert.equal(r.status, 200);
+  assert.match(await readFile(noVault('Arquitetura/Interface/API/API.md'), 'utf8'), /Versão 2\./);
+  assert.equal(await existe('Arquitetura/Interface/API.md'), false, 'não recria o arquivo no lugar antigo');
+});
+
+test('criar domínio na raiz: arquivo com matiz num arco livre', async () => {
+  const d = await (await post('caderno', 'Python')).json();
+  assert.equal(d.arquivo, 'Python.md');
+  const texto = await readFile(noVault('Python.md'), 'utf8');
+  const [, a, b] = texto.match(/matiz: \[(\d+), (\d+)\]/).map(Number);
+  assert.ok(b < 22 || a > 95, 'não invade Engenharia de IA');
+  assert.ok(b < 185 || a > 255, 'não invade Arquitetura');
+  assert.deepEqual(d.tree.children.find((x) => x.slug === 'python').hue, [a, b]);
+});
+
+test('criar recusa nome repetido, nome inválido e pai inexistente — sem tocar no disco', async () => {
+  const antes = await readFile(noVault('Engenharia de IA/Agentes/MCP.md'), 'utf8');
+  assert.equal((await post('caderno', 'mcp')).status, 409);
+  assert.equal((await post('caderno', 'a/b')).status, 400);
+  assert.equal((await post('caderno', '_rascunho')).status, 400);
+  assert.equal((await post('sumiu', 'X')).status, 404);
+  assert.equal(await readFile(noVault('Engenharia de IA/Agentes/MCP.md'), 'utf8'), antes);
+  assert.equal(await existe('_rascunho.md'), false);
+});
+
+test('se o caderno recusar a nota depois de criada, tudo é desfeito', async () => {
+  // Um nome com mojibake passa na validação mas o leitor do vault o recusa:
+  // o servidor tem que apagar o arquivo e devolver o tópico ao lugar.
+  const r = await post('tools', 'Consist├¬ncia');
+  assert.equal(r.status, 400);
+  assert.match((await r.json()).erro, /recusou/);
+  assert.equal(await existe('Engenharia de IA/Agentes/Tools/Consist├¬ncia.md'), false);
+  assert.equal(await existe('Engenharia de IA/Agentes/Tools.md'), true, 'a promoção foi desfeita');
+  assert.equal(await existe('Engenharia de IA/Agentes/Tools/Tools.md'), false);
+  // e o servidor continua funcionando
+  assert.equal((await post('tools', 'Function calling')).status, 201);
+});
