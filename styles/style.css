@@ -235,6 +235,37 @@ canvas:focus-visible{outline:2px solid var(--c-inkdim);outline-offset:-4px}
 .panel-edit:focus-visible{outline:2px solid hsl(var(--panel-h) 62% 58%);outline-offset:2px}
 
 .panel-aviso{margin:0;font-size:.78rem;font-style:italic;color:var(--c-inkdim)}
+
+/* ---- criar nota ---- */
+.panel-novo{border-style:dashed}
+.novo{
+  margin-top:1em;padding:12px 14px;border-radius:6px;
+  border:1px dashed hsl(var(--panel-h) 55% 58% / .55);
+  display:flex;flex-direction:column;gap:8px;
+}
+.novo-rotulo{font-size:.8rem;color:var(--c-inkdim)}
+.novo-linha{display:flex;gap:8px;flex-wrap:wrap}
+#novo-nome{
+  flex:1 1 180px;min-width:0;
+  font:400 .95rem/1.3 "Newsreader",Georgia,serif;color:var(--c-ink);
+  padding:8px 10px;border-radius:6px;
+  background:hsl(var(--panel-h) 20% 50% / .07);
+  border:1px solid var(--panel-line);
+}
+#novo-nome:focus{outline:none;border-color:hsl(var(--panel-h) 58% 58% / .7)}
+.novo-linha button{
+  font:400 .85rem/1 "Newsreader",Georgia,serif;
+  padding:8px 14px;border-radius:999px;cursor:pointer;border:1px solid var(--panel-line);
+}
+.novo-criar{color:var(--c-void);background:hsl(var(--panel-h) 58% 60%);border-color:transparent}
+.novo-criar:disabled{opacity:.55;cursor:progress}
+.novo-cancelar{background:transparent;color:var(--c-inkdim)}
+.novo-linha button:focus-visible{outline:2px solid hsl(var(--panel-h) 62% 58%);outline-offset:2px}
+.novo-dica{margin:0;font-size:.78rem;font-style:italic;color:var(--c-inkdim)}
+.novo-msg{margin:0;font-size:.8rem;color:var(--c-ink);min-height:1em}
+.novo-msg:empty{display:none}
+/* escrevendo, não se cria: um fluxo por vez */
+.panel.editando .panel-novo,.panel.editando .novo{display:none}
 .panel-aviso::before{content:"✓ ";font-style:normal;color:hsl(var(--panel-h) 58% 58%)}
 
 .panel-status{

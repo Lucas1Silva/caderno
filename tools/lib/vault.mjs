@@ -49,7 +49,7 @@ const ignorado = (nome) => nome.startsWith('.') || nome.startsWith('_');
  * O macOS grava a segunda; o Windows e o Linux, a primeira. Sem normalizar,
  * [[Consistência]] e Consistência.md poderiam ser strings diferentes.
  */
-const chaveDe = (nome) => String(nome).normalize('NFC').toLowerCase();
+export const chaveDe = (nome) => String(nome).normalize('NFC').toLowerCase();
 
 /**
  * Mojibake: UTF-8 lido como a codificação antiga do DOS (CP437) ou como
@@ -58,6 +58,14 @@ const chaveDe = (nome) => String(nome).normalize('NFC').toLowerCase();
  * silenciosamente corrompido num erro com instrução de conserto.
  */
 const MOJIBAKE = /├[\u00A0-\u00FF\u2500-\u25FF]|[ÃÂ][\u0080-\u00BF]/;
+
+/**
+ * Primeiro arco de cor que não se sobrepõe a nenhum dos declarados, ou null.
+ * Usado pelo build (domínio sem `matiz`) e pelo servidor (domínio novo).
+ */
+export function arcoLivre(declarados) {
+  return ARCOS_LIVRES.find((a) => !declarados.some((d) => sobrepoe(a, d))) || null;
+}
 
 function sobrepoe(a, b) {
   const norm = ([x, y]) => [((x % 360) + 360) % 360, ((x % 360) + 360) % 360 + (y - x)];

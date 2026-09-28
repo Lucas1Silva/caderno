@@ -278,12 +278,71 @@ export function buildGraph(raiz, cross, { reduced = false, params = {}, rng = Ma
     for (const l of links) l.rest = l.cruzada ? repousoCruzada(l.a, l.b) : at(MOLA, l.b.depth);
   }
 
+  /**
+   * Recalcula as cores a partir de uma árvore nova. Um filho novo de domínio
+   * reparte o arco entre os irmãos, e um domínio novo ganha arco próprio —
+   * então as cores são recalculadas do zero, pela mesma regra de sempre, e
+   * copiadas nó a nó pelo slug.
+   */
+  function retingir(arvore) {
+    const fresco = buildGraph(arvore, [], { params: P });
+    for (const f of fresco.nodes) {
+      const alvo = f.slug && bySlug.get(f.slug);
+      if (alvo) { alvo.h = f.h; alvo.shade = f.shade; }
+    }
+  }
+
+  /**
+   * Insere uma nota nova com o universo em movimento, sem recarregar.
+   *
+   * O nó nasce colado no pai e entra com a mesma animação da expansão
+   * (born = agora). Todas as estruturas derivadas — vizinhança, parentesco,
+   * constelação, trilha — ganham uma entrada no fim; os arrays são os mesmos
+   * objetos que a física e o desenho já leem, então nada precisa ser religado.
+   *
+   * @param {{slug, label, status, vazio, html}} nota
+   * @param {string} slugPai
+   * @param {{ elapsed?: number, arvore?: object }} [opts]
+   *   elapsed: relógio da animação (ms), para o nó nascer agora
+   *   arvore:  árvore nova vinda do build, para recalcular as cores
+   */
+  function inserir(nota, slugPai, { elapsed = 0, arvore = null } = {}) {
+    const pai = bySlug.get(slugPai);
+    if (!pai) throw new Error(`pai "${slugPai}" não está no grafo`);
+    if (bySlug.has(nota.slug)) return bySlug.get(nota.slug);
+
+    const depth = pai.depth + 1;
+    const n = addNode(nota.label, depth, pai.h, pai.shade, pai, nota);
+    n.born = elapsed;
+    n.alive = 0;
+    addLink(pai, n, at(MOLA, depth));
+
+    neighbors.push(new Set([pai.id]));
+    neighbors[pai.id].add(n.id);
+    descendants.push(new Set());
+    ancestors.push(new Set([pai.id, ...ancestors[pai.id]]));
+    for (const a of ancestors[n.id]) {
+      descendants[a].add(n.id);
+      constellation[a].add(n.id);
+    }
+    constellation.push(new Set([n.id, ...ancestors[n.id]]));
+    path.push([...path[pai.id], pai.label]);
+    maxDepth = Math.max(maxDepth, depth);
+
+    if (arvore) retingir(arvore);
+    return n;
+  }
+
+  let maxDepth = nodes.reduce((m, n) => Math.max(m, n.depth), 0);
+
   return {
     syncCross,
     setMolas,
+    inserir,
+    retingir,
     nodes, links, core, byLabel, bySlug,
     neighbors, descendants, ancestors, constellation, path,
     lastBorn,
-    maxDepth: nodes.reduce((m, n) => Math.max(m, n.depth), 0)
+    get maxDepth() { return maxDepth; }
   };
 }

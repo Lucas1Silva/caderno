@@ -9,6 +9,7 @@ import { createRenderer } from './render.js';
 import { attachInteraction } from './interaction.js';
 import { createPanel } from './panel.js';
 import { createEditor } from './editor.js';
+import { createCriador } from './criador.js';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -116,10 +117,29 @@ const editor = createEditor({
   }
 });
 
+// O nó novo nasce colado no pai e leva um instante para se afastar. Se ele
+// fosse selecionado (e portanto fixado) na hora, ficaria preso em cima do pai;
+// por isso a nota nova só abre depois que ele saiu do lugar.
+const ESPERA_NOVO_MS = 1200;
+
+const criador = createCriador({
+  servidor: editor.pronto,
+  onCriado(resposta) {
+    const novo = graph.inserir(resposta.nota, resposta.pai, { elapsed: elapsedAtual, arvore: resposta.tree });
+    graph.syncCross(resposta.cross);
+    atualizarStats(resposta.meta);
+    panel.avisar(`${resposta.nota.label} criado${resposta.promovido ? ' — este tópico virou pasta' : ''}`);
+    setTimeout(() => {
+      select(novo, { force: true });
+      editor.entrar();
+    }, reduced ? 0 : ESPERA_NOVO_MS);
+  }
+});
+
 const panel = createPanel({
   onNavigate: (node) => select(node, { force: true }),
   onClose: () => select(null),
-  onShow: (node) => editor.aoMostrar(node)
+  onShow: (node) => { editor.aoMostrar(node); criador.aoMostrar(node); }
 });
 
 const slugDoEndereco = () => {
@@ -227,6 +247,7 @@ const input = attachInteraction(vp, graph, {
 // negativo em ctx.arc lança IndexSizeError, matando o frame inteiro.
 let t0 = null;
 let last = 0;
+let elapsedAtual = 0;   // relógio da animação, lido por quem insere nós novos
 
 function frame(now) {
   if (t0 === null) { t0 = now; last = now; }
@@ -238,6 +259,7 @@ function frame(now) {
   if (dt > 3) dt = 3;
 
   const elapsed = Math.max(0, now - t0);
+  elapsedAtual = elapsed;
   sim.step(dt, elapsed);
 
   // a câmera recua devagar enquanto o universo termina de se abrir

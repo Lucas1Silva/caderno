@@ -29,6 +29,7 @@ const ORDEM = [
   'src/interaction.js',
   'src/panel.js',
   'src/editor.js',
+  'src/criador.js',
   'src/main.js'
 ];
 

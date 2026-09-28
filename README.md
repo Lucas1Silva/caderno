@@ -22,6 +22,10 @@ node tools/serve.mjs
 
 Abra <http://localhost:5173>. Clique num nó → **Editar** → escreva → **Ctrl+S**.
 
+Para um assunto novo, clique no nó onde ele se encaixa → **+ Novo tópico**. Na
+raiz, o botão vira **+ Novo domínio**. O nó nasce ao lado do pai e a nota abre
+direto para escrever.
+
 Esse comando gera os dados, serve o site e grava o que você escreve direto no
 `.md` dentro de `vault/`. Se você editar um `.md` por fora (VS Code, bloco de
 notas), ele percebe e regera sozinho — é só recarregar o navegador.
@@ -39,8 +43,8 @@ git add vault && git commit -m "notas" && git push
 | `node tools/serve.mjs` na sua máquina | sim | **sim** |
 | site publicado no GitHub Pages | sim | não |
 
-No Pages não existe servidor para receber o texto, então o botão *Editar*
-nem aparece. Escrever pelo site publicado exigiria um token do GitHub no
+No Pages não existe servidor para receber o texto, então os botões *Editar* e
+*+ Novo* nem aparecem. Escrever pelo site publicado exigiria um token do GitHub no
 navegador — decisão separada, não tomada.
 
 ### Segurança do servidor local
@@ -107,7 +111,25 @@ Aqui você escreve. Qualquer [[link]] no texto também vira aresta.
   ter o caractere — `/` é proibido em nome de arquivo, então
   `Percentis (p50, p95, p99).md` exibe `Percentis (p50/p95/p99)`.
 
-### Novo domínio
+### Criar notas
+
+Pelo caderno, com o servidor local rodando: clique num nó → **+ Novo tópico**
+(ou **+ Novo domínio**, na raiz). O servidor:
+
+- valida o nome — nada de `/ : * ? " < > |` (o Windows proíbe), nem `[ ] # ^`
+  (quebrariam os `[[links]]`), nem `_` ou `.` no começo (seria ignorado);
+- recusa nome repetido, porque é pelo nome que os links encontram a nota;
+- grava o slug no frontmatter, com sufixo se já existir (`mcp-2`);
+- num **domínio novo**, escolhe sozinho um arco de cor livre;
+- num **tópico sem filhos**, transforma o tópico em pasta antes:
+  `Sub/API.md` passa a `Sub/API/API.md`, com o mesmo texto e o mesmo slug.
+  Nenhum link quebra, porque links resolvem pelo nome, não pelo caminho;
+- se o caderno não conseguir ler o vault depois da criação, desfaz tudo.
+
+Renomear e apagar ainda são feitos à mão, nos arquivos: renomear quebraria os
+`[[links]]` que apontam para a nota, e isso precisa de um cuidado próprio.
+
+### Novo domínio à mão
 
 Crie a pasta e a nota-de-pasta com `matiz`. Nada mais — nem CSS, nem JS.
 
@@ -165,6 +187,7 @@ tools/
 ├── relatorio.mjs          resultado da evolução → evolucao/relatorio.html
 └── lib/
     ├── gerar.mjs          compartilhado por build e serve
+    ├── criar.mjs          validação de nome e plano de onde a nota nova nasce
     ├── genetico.mjs       genes, seleção, cruzamento, mutação, elitismo
     ├── aptidao.mjs        a nota de um universo: cinco critérios
     ├── sintetico.mjs      grafo artificial maior, para testar generalização
@@ -179,6 +202,7 @@ src/
 ├── render.js              canvas; status de estudo por nó
 ├── panel.js               painel lateral da nota
 ├── editor.js              edição no painel (só aparece com o servidor local)
+├── criador.js             o botão + Novo e o formulário de nota nova
 ├── viewport.js            câmera e zoom
 ├── palette.js             cores fixas do CSS + cor de nó gerada em HSL
 ├── interaction.js         ponteiro, pinch, teclado, clique vs. arrasto
