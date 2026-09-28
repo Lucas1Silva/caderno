@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Evolução do Caderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F0E7; --ink:#1B1626; --ink2:#4A4356; --muted:#6B6274;
+  --line:rgba(27,22,38,.14); --grid:rgba(27,22,38,.08); --soft:rgba(27,22,38,.045);
+  --evo:#A0600A; --evo-wash:rgba(160,96,10,.13); --man:#1F6FB2;
+  --core:#7A4A12; --node-s:64%; --node-l:38; --node-r:15;
+  --edge:rgba(27,22,38,.20); --edge-x:rgba(27,22,38,.09);
+  --tip:#FFFDF8; --tip-line:rgba(27,22,38,.16);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#120C22; --ink:#EDE6DA; --ink2:#C9C0D6; --muted:#8F86A3;
+    --line:rgba(237,230,218,.14); --grid:rgba(237,230,218,.07); --soft:rgba(237,230,218,.04);
+    --evo:#BD8428; --evo-wash:rgba(189,132,40,.16); --man:#4F92D8;
+    --core:#F4E2B6; --node-s:58%; --node-l:66; --node-r:21;
+    --edge:rgba(237,230,218,.20); --edge-x:rgba(237,230,218,.08);
+    --tip:#1E1633; --tip-line:rgba(237,230,218,.16);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#120C22; --ink:#EDE6DA; --ink2:#C9C0D6; --muted:#8F86A3;
+  --line:rgba(237,230,218,.14); --grid:rgba(237,230,218,.07); --soft:rgba(237,230,218,.04);
+  --evo:#BD8428; --evo-wash:rgba(189,132,40,.16); --man:#4F92D8;
+  --core:#F4E2B6; --node-s:58%; --node-l:66; --node-r:21;
+  --edge:rgba(237,230,218,.20); --edge-x:rgba(237,230,218,.08);
+  --tip:#1E1633; --tip-line:rgba(237,230,218,.16);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:300 17px/1.62 "Newsreader",Georgia,"Times New Roman",serif;-webkit-font-smoothing:antialiased}
+.pagina{max-width:860px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:clamp(28px,6vw,64px) 72px}
+.num,.mono{font-family:"IBM Plex Mono",ui-monospace,"Cascadia Code",Consolas,monospace;font-variant-numeric:tabular-nums}
+h1{font-weight:400;font-size:clamp(2.1rem,5.4vw,3.2rem);line-height:1.04;letter-spacing:-.02em;margin:.25em 0 0;text-wrap:balance}
+h2{font-weight:400;font-size:clamp(1.35rem,2.8vw,1.7rem);line-height:1.15;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.olho{font:400 .72rem/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0}
+.tese{font-size:clamp(1.08rem,2.2vw,1.24rem);line-height:1.55;color:var(--ink2);max-width:62ch;margin:1.1em 0 0}
+.tese strong{font-weight:500;color:var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:1.4em;font-size:.78rem;color:var(--muted)}
+section{margin-top:clamp(52px,8vw,84px);display:grid;gap:14px}
+section > p{margin:0;max-width:65ch;color:var(--ink2)}
+.nota{font-size:.88rem;color:var(--muted);max-width:65ch;margin:0}
+.grafico{position:relative}
+.grafico svg{display:block;width:100%;height:auto;overflow:visible}
+.grafico svg:focus-visible{outline:2px solid var(--evo);outline-offset:4px;border-radius:4px}
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;fill:var(--muted)}
+svg .rot{fill:var(--ink2);font-size:12px}
+svg .rot-forte{fill:var(--ink);font-size:12.5px;font-weight:500}
+.legenda{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8rem;color:var(--ink2)}
+.legenda span{display:inline-flex;align-items:center;gap:7px}
+.chave{display:inline-block;width:18px;height:0;border-top:2px solid}
+.chave.tracejada{border-top-style:dashed}
+.chave.faixa{height:9px;border:0;border-radius:2px;background:var(--evo-wash)}
+.chave.ponto{width:9px;height:9px;border:0;border-radius:50%}
+.dica{position:absolute;pointer-events:none;z-index:2;min-width:150px;
+  background:var(--tip);border:1px solid var(--tip-line);border-radius:6px;
+  padding:8px 10px;font-size:.78rem;line-height:1.45;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+.dica .t{color:var(--muted);font-size:.72rem;letter-spacing:.04em;margin-bottom:3px}
+.dica .l{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.dica .l b{font-weight:500;color:var(--ink)}
+.dica .l span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+.par{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.fileira{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:620px){.par{grid-template-columns:1fr}.fileira{grid-template-columns:1fr 1fr}}
+figure{margin:0;display:grid;gap:6px}
+figure svg{display:block;width:100%;height:auto;aspect-ratio:1;background:var(--soft);border-radius:8px}
+figcaption{font-size:.8rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+figcaption b{font-weight:500;color:var(--ink)}
+.tabela{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font:400 .7rem/1.3 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td.r,th.r{text-align:right}
+tr.escolhido td{background:var(--evo-wash)}
+.cod{font-size:.72rem;color:var(--muted);display:block}
+.faixa-gene{position:relative;height:14px;min-width:120px}
+.faixa-gene::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:var(--grid);border-radius:1px}
+.faixa-gene i{position:absolute;top:2px;width:10px;height:10px;margin-left:-5px;border-radius:50%;box-shadow:0 0 0 2px var(--bg)}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-size:.86rem;color:var(--ink2)}
+summary:focus-visible{outline:2px solid var(--evo);outline-offset:3px}
+details .tabela{margin-top:10px;max-height:320px;overflow:auto}
+.ressalvas{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+.ressalvas li{display:grid;gap:3px;max-width:65ch}
+.ressalvas b{font-weight:500}
+.ressalvas span{color:var(--ink2)}
+</style>
+</head>
+<body>
+
+<main class="pagina">
+  <p class="olho">caderno · física · 2026-09-26</p>
+  <h1>Evolução do Caderno</h1>
+  <p class="tese">Um algoritmo genético ajustou os oito parâmetros da física do grafo. Em 10 posições iniciais que ele nunca viu, o universo evoluído tira
+    <strong class="num">63,9</strong> contra <strong class="num">50,4</strong> dos parâmetros que eu tinha ajustado à mão.</p>
+  <div class="meta mono">
+    <span>24 indivíduos × 30 gerações</span>
+    <span>8 genes</span>
+    <span>40 s simulados por universo</span>
+    <span>279 s de evolução</span>
+  </div>
+
+  <section aria-labelledby="t-resultado">
+    <p class="olho">o resultado</p>
+    <h2 id="t-resultado">A vantagem se mantém fora do treino</h2>
+    <p>No treino o evoluído ganha por <span class="num">+12,6</span>. Em 10 sementes novas fica em <span class="num">+13,5</span>, dentro da margem de erro do treino: a escolha pela validação filtrou a sorte. Num grafo sintético com 122 nós, que nenhuma etapa usou, a diferença é <span class="num">+11,9</span> — os parâmetros não decoraram o grafo de 77 nós.</p>
+    <div class="legenda">
+      <span><i class="chave ponto" style="background:var(--evo)"></i>evoluído</span>
+      <span><i class="chave ponto" style="background:var(--man)"></i>manual</span>
+      <span class="mono" style="color:var(--muted)">traço fino = ± erro padrão da média</span>
+    </div>
+    <div class="grafico" id="g-halteres"></div>
+  </section>
+
+  <section aria-labelledby="t-retratos">
+    <p class="olho">mesma semente, física diferente</p>
+    <h2 id="t-retratos">Os dois universos, assentados</h2>
+    <p>Os dois nasceram das mesmas posições (semente 101) e rodaram 40 segundos simulados. Mesma escala nos dois.</p>
+    <div class="par">
+      <figure><div id="r-manual"></div><figcaption><span>ajustado à mão</span><b class="num">50,4</b></figcaption></figure>
+      <figure><div id="r-vencedor"></div><figcaption><span>evoluído</span><b class="num">63,9</b></figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-curva">
+    <p class="olho">a evolução</p>
+    <h2 id="t-curva">Geração a geração</h2>
+    <p>O melhor indivíduo nunca piora — os dois melhores de cada geração passam intactos. A média sobe à medida que a população converge: a diversidade caiu de <span class="num">0,299</span> para <span class="num">0,026</span>.</p>
+    <div class="legenda">
+      <span><i class="chave" style="border-color:var(--evo)"></i>melhor</span>
+      <span><i class="chave tracejada" style="border-color:var(--evo)"></i>média da população</span>
+      <span><i class="chave faixa"></i>do pior ao melhor</span>
+      <span><i class="chave tracejada" style="border-color:var(--man)"></i>manual</span>
+    </div>
+    <div class="grafico" id="g-curva"></div>
+    <div class="fileira">
+      <figure><div id="r-g0"></div><figcaption><span>geração 0</span><b class="num">61,3</b></figcaption></figure><figure><div id="r-g1"></div><figcaption><span>geração 10</span><b class="num">66,5</b></figcaption></figure><figure><div id="r-g2"></div><figcaption><span>geração 19</span><b class="num">66,5</b></figcaption></figure><figure><div id="r-g3"></div><figcaption><span>geração 29</span><b class="num">67,8</b></figcaption></figure>
+    </div>
+    <p class="nota">O campeão de treino em cada marco, na semente 101. As notas são de treino.</p>
+    <details>
+      <summary>Ver os números por geração</summary>
+      <div class="tabela"><table>
+        <thead><tr><th>geração</th><th class="r">melhor</th><th class="r">média</th><th class="r">pior</th><th class="r">diversidade</th></tr></thead>
+        <tbody>
+      <tr><td class="num">0</td><td class="r num">61,3</td><td class="r num">47,0</td><td class="r num">23,7</td><td class="r num">0,299</td></tr>
+      <tr><td class="num">1</td><td class="r num">61,3</td><td class="r num">51,3</td><td class="r num">39,6</td><td class="r num">0,268</td></tr>
+      <tr><td class="num">2</td><td class="r num">61,3</td><td class="r num">54,0</td><td class="r num">46,2</td><td class="r num">0,221</td></tr>
+      <tr><td class="num">3</td><td class="r num">61,3</td><td class="r num">56,0</td><td class="r num">50,1</td><td class="r num">0,194</td></tr>
+      <tr><td class="num">4</td><td class="r num">63,2</td><td class="r num">57,7</td><td class="r num">47,8</td><td class="r num">0,174</td></tr>
+      <tr><td class="num">5</td><td class="r num">63,5</td><td class="r num">59,3</td><td class="r num">52,5</td><td class="r num">0,15</td></tr>
+      <tr><td class="num">6</td><td class="r num">64,5</td><td class="r num">58,1</td><td class="r num">46,6</td><td class="r num">0,149</td></tr>
+      <tr><td class="num">7</td><td class="r num">64,5</td><td class="r num">59,8</td><td class="r num">48,6</td><td class="r num">0,131</td></tr>
+      <tr><td class="num">8</td><td class="r num">66,5</td><td class="r num">59,5</td><td class="r num">53,2</td><td class="r num">0,118</td></tr>
+      <tr><td class="num">9</td><td class="r num">66,5</td><td class="r num">60,2</td><td class="r num">53,4</td><td class="r num">0,096</td></tr>
+      <tr><td class="num">10</td><td class="r num">66,5</td><td class="r num">60,3</td><td class="r num">53,5</td><td class="r num">0,086</td></tr>
+      <tr><td class="num">11</td><td class="r num">66,5</td><td class="r num">61,0</td><td class="r num">54,1</td><td class="r num">0,096</td></tr>
+      <tr><td class="num">12</td><td class="r num">66,5</td><td class="r num">62,0</td><td class="r num">57,9</td><td class="r num">0,084</td></tr>
+      <tr><td class="num">13</td><td class="r num">66,5</td><td class="r num">61,0</td><td class="r num">56,7</td><td class="r num">0,086</td></tr>
+      <tr><td class="num">14</td><td class="r num">66,5</td><td class="r num">61,8</td><td class="r num">57,1</td><td class="r num">0,07</td></tr>
+      <tr><td class="num">15</td><td class="r num">66,5</td><td class="r num">62,3</td><td class="r num">56,9</td><td class="r num">0,069</td></tr>
+      <tr><td class="num">16</td><td class="r num">66,5</td><td class="r num">61,4</td><td class="r num">56,3</td><td class="r num">0,062</td></tr>
+      <tr><td class="num">17</td><td class="r num">66,5</td><td class="r num">61,6</td><td class="r num">57,4</td><td class="r num">0,059</td></tr>
+      <tr><td class="num">18</td><td class="r num">66,5</td><td class="r num">62,4</td><td class="r num">57,6</td><td class="r num">0,065</td></tr>
+      <tr><td class="num">19</td><td class="r num">66,5</td><td class="r num">62,7</td><td class="r num">58,0</td><td class="r num">0,059</td></tr>
+      <tr><td class="num">20</td><td class="r num">66,5</td><td class="r num">62,9</td><td class="r num">57,5</td><td class="r num">0,056</td></tr>
+      <tr><td class="num">21</td><td class="r num">66,7</td><td class="r num">63,6</td><td class="r num">58,8</td><td class="r num">0,051</td></tr>
+      <tr><td class="num">22</td><td class="r num">66,7</td><td class="r num">62,8</td><td class="r num">56,1</td><td class="r num">0,048</td></tr>
+      <tr><td class="num">23</td><td class="r num">66,8</td><td class="r num">62,5</td><td class="r num">57,2</td><td class="r num">0,048</td></tr>
+      <tr><td class="num">24</td><td class="r num">66,8</td><td class="r num">63,1</td><td class="r num">57,8</td><td class="r num">0,042</td></tr>
+      <tr><td class="num">25</td><td class="r num">66,8</td><td class="r num">62,9</td><td class="r num">58,0</td><td class="r num">0,038</td></tr>
+      <tr><td class="num">26</td><td class="r num">66,8</td><td class="r num">63,0</td><td class="r num">59,0</td><td class="r num">0,035</td></tr>
+      <tr><td class="num">27</td><td class="r num">67,7</td><td class="r num">64,1</td><td class="r num">60,9</td><td class="r num">0,031</td></tr>
+      <tr><td class="num">28</td><td class="r num">67,7</td><td class="r num">62,7</td><td class="r num">57,7</td><td class="r num">0,032</td></tr>
+      <tr><td class="num">29</td><td class="r num">67,7</td><td class="r num">63,5</td><td class="r num">60,0</td><td class="r num">0,026</td></tr></tbody>
+      </table></div>
+    </details>
+  </section>
+
+  <section aria-labelledby="t-criterios">
+    <p class="olho">de onde vem a nota</p>
+    <h2 id="t-criterios">Os cinco critérios</h2>
+    <p>Cada critério vale de 0 a 1; a aptidão é a média ponderada, de 0 a 100. Notas nas sementes de teste.</p>
+    <div class="legenda">
+      <span><i class="chave faixa" style="background:var(--evo)"></i>evoluído</span>
+      <span><i class="chave faixa" style="background:var(--man)"></i>manual</span>
+    </div>
+    <div class="grafico" id="g-criterios"></div>
+  </section>
+
+  <section aria-labelledby="t-genes">
+    <p class="olho">o genoma</p>
+    <h2 id="t-genes">O que mudou</h2>
+    <p>Um gene encostou na borda da faixa permitida (mola domínio → sub-área). A evolução queria ir além do limite que eu defini: o próximo experimento é alargar essa faixa.</p>
+    <div class="tabela"><table>
+      <thead><tr><th>gene</th><th class="r">faixa</th><th class="r">manual</th><th class="r">evoluído</th><th>posição na faixa</th></tr></thead>
+      <tbody>
+      <tr>
+        <td>repulsão entre nós<span class="cod mono">REPULSION · escala log</span></td>
+        <td class="r num">600 – 3.000</td>
+        <td class="r num">1.500</td>
+        <td class="r num">1.349</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 57%, evoluído 50%">
+          <i style="left:56.9%;background:var(--man)"></i>
+          <i style="left:50.3%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>rigidez das molas<span class="cod mono">SPRING · escala log</span></td>
+        <td class="r num">0,002 – 0,02</td>
+        <td class="r num">0,0075</td>
+        <td class="r num">0,00491</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 57%, evoluído 39%">
+          <i style="left:57.4%;background:var(--man)"></i>
+          <i style="left:39.0%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>gravidade ao centro<span class="cod mono">GRAVITY · escala log</span></td>
+        <td class="r num">0,0003 – 0,004</td>
+        <td class="r num">0,0013</td>
+        <td class="r num">0,000398</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 57%, evoluído 11%">
+          <i style="left:56.6%;background:var(--man)"></i>
+          <i style="left:11.0%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>velocidade retida por frame<span class="cod mono">DAMPING</span></td>
+        <td class="r num">0,85 – 0,96</td>
+        <td class="r num">0,9</td>
+        <td class="r num">0,95</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 46%, evoluído 91%">
+          <i style="left:45.5%;background:var(--man)"></i>
+          <i style="left:90.6%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>mola raiz → domínio<span class="cod mono">MOLA_DOMINIO</span></td>
+        <td class="r num">250 – 550</td>
+        <td class="r num">400</td>
+        <td class="r num">445</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 50%, evoluído 65%">
+          <i style="left:50.0%;background:var(--man)"></i>
+          <i style="left:65.0%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>mola domínio → sub-área<span class="cod mono">MOLA_SUBAREA · na borda</span></td>
+        <td class="r num">90 – 220</td>
+        <td class="r num">155</td>
+        <td class="r num">90,5</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 50%, evoluído 0%">
+          <i style="left:50.0%;background:var(--man)"></i>
+          <i style="left:0.4%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>mola sub-área → tópico<span class="cod mono">MOLA_TOPICO</span></td>
+        <td class="r num">50 – 120</td>
+        <td class="r num">82</td>
+        <td class="r num">61,12</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 46%, evoluído 16%">
+          <i style="left:45.7%;background:var(--man)"></i>
+          <i style="left:15.9%;background:var(--evo)"></i>
+        </div></td>
+      </tr>
+      <tr>
+        <td>mola das arestas cruzadas<span class="cod mono">MOLA_CRUZADA</span></td>
+        <td class="r num">100 – 260</td>
+        <td class="r num">175</td>
+        <td class="r num">154</td>
+        <td><div class="faixa-gene" aria-label="posição na faixa: manual 47%, evoluído 34%">
+          <i style="left:46.9%;background:var(--man)"></i>
+          <i style="left:33.8%;background:var(--evo)"></i>
+        </div></td>
+      </tr></tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="t-finalistas">
+    <p class="olho">maldição do vencedor</p>
+    <h2 id="t-finalistas">O melhor do treino não é o melhor de fato</h2>
+    <p>Os 6 melhores da última geração, arredondados e reavaliados em 10 sementes de validação. O 1º do treino (<span class="num">67,8</span>) fica com <span class="num">62,7</span> na validação; o escolhido era o 6º do treino. Quem chega ao topo do treino chega em parte por sorte nas sementes que viu — por isso a escolha é feita na validação, não no treino.</p>
+    <div class="tabela"><table>
+      <thead><tr><th>posição no treino</th><th class="r">treino</th><th class="r">validação</th><th class="r">diferença</th></tr></thead>
+      <tbody>
+      <tr>
+        <td class="num">1º</td>
+        <td class="r num">67,8</td>
+        <td class="r num">62,7 ± 1,7</td>
+        <td class="r num">−5,0</td>
+      </tr>
+      <tr>
+        <td class="num">2º</td>
+        <td class="r num">67,4</td>
+        <td class="r num">62,3 ± 1,4</td>
+        <td class="r num">−5,0</td>
+      </tr>
+      <tr>
+        <td class="num">3º</td>
+        <td class="r num">66,6</td>
+        <td class="r num">65,4 ± 1,6</td>
+        <td class="r num">−1,2</td>
+      </tr>
+      <tr>
+        <td class="num">4º</td>
+        <td class="r num">66,5</td>
+        <td class="r num">65,5 ± 1,2</td>
+        <td class="r num">−1,0</td>
+      </tr>
+      <tr>
+        <td class="num">5º</td>
+        <td class="r num">66,0</td>
+        <td class="r num">65,1 ± 1,9</td>
+        <td class="r num">−0,9</td>
+      </tr>
+      <tr class="escolhido">
+        <td class="num">6º · escolhido</td>
+        <td class="r num">65,6</td>
+        <td class="r num">67,1 ± 1,2</td>
+        <td class="r num">+1,6</td>
+      </tr></tbody>
+    </table></div>
+    <p class="nota">Treino é a nota que o finalista teve durante a evolução; validação é a do valor arredondado, em sementes novas. Os dois efeitos — sorte na semente e caos do arredondamento — entram na diferença.</p>
+  </section>
+
+  <section aria-labelledby="t-ressalvas">
+    <p class="olho">como ler isto</p>
+    <h2 id="t-ressalvas">Ressalvas</h2>
+    <ul class="ressalvas">
+      <li><b>A nota é opinião.</b><span>Os pesos (30% cruzamentos · 25% pureza · 20% sobreposicao · 15% tela · 10% estabilidade) e as escalas foram escolhidos por mim. O algoritmo otimiza a minha definição de “bonito”, e não uma definição objetiva.</span></li>
+      <li><b>A nota é ruidosa.</b><span>O mesmo genoma varia uns 6 pontos só trocando a posição inicial dos nós. Por isso toda comparação aqui usa média de várias sementes, com erro padrão.</span></li>
+      <li><b>A física é caótica.</b><span>Mudar um parâmetro na sexta casa decimal muda o layout final. Os finalistas foram arredondados antes da validação, para que o valor gravado seja exatamente o que foi testado.</span></li>
+      <li><b>Treino, validação e teste.</b><span>Sementes 1, 2, 3, 4, 5 guiaram a evolução; 10 outras escolheram o finalista; as 10 de teste e o grafo sintético não participaram de nenhuma escolha.</span></li>
+    </ul>
+  </section>
+</main>
+<script type="application/json" id="dados">{"treino":{"manual":{"aptidao":48.97,"erro":1.8,"partes":{"cruzamentos":0.326,"pureza":0.326,"sobreposicao":0.51,"tela":1,"estabilidade":0.584},"medidas":{"n":77,"arestas":134,"cruzamentos":152.6,"perto":5.4,"pureza":0.879,"velocidade":0.054,"raio":545.034},"porSemente":[48.45,51.59,52.68,49.76,42.39]},"evoluido":{"aptidao":61.55,"erro":4.58,"partes":{"cruzamentos":0.483,"pureza":0.416,"sobreposicao":0.919,"tela":0.979,"estabilidade":0.361},"medidas":{"n":77,"arestas":134,"cruzamentos":98,"perto":0.8,"pureza":0.906,"velocidade":1.169,"raio":649.293},"porSemente":[72.7,66.98,63.58,58.92,45.57]}},"teste":{"manual":{"aptidao":50.38,"erro":2.34,"partes":{"cruzamentos":0.324,"pureza":0.367,"sobreposicao":0.582,"tela":1,"estabilidade":0.484},"medidas":{"n":77,"arestas":134,"cruzamentos":152.3,"perto":4.4,"pureza":0.878,"velocidade":0.248,"raio":536.774},"porSemente":[54.97,57.64,43.04,59.26,57.79,41.39,45.02,54.12,39.99,50.55]},"evoluido":{"aptidao":63.91,"erro":1.64,"partes":{"cruzamentos":0.457,"pureza":0.402,"sobreposicao":0.965,"tela":0.95,"estabilidade":0.66},"medidas":{"n":77,"arestas":134,"cruzamentos":107.3,"perto":0.3,"pureza":0.897,"velocidade":0.036,"raio":654.81},"porSemente":[62.19,68.74,52.94,61.27,63.28,68.6,65.45,62.44,62.6,71.63]}},"sintetico":{"nos":122,"arestasCruzadas":92,"manual":{"aptidao":37.6,"erro":1.75,"partes":{"cruzamentos":0.197,"pureza":0.219,"sobreposicao":0.308,"tela":1,"estabilidade":0.506},"medidas":{"n":122,"arestas":213,"cruzamentos":347,"perto":14.8,"pureza":0.841,"velocidade":0.199,"raio":631.199},"porSemente":[43.03,33.17,39.08,34.56,38.18]},"evoluido":{"aptidao":49.52,"erro":1.27,"partes":{"cruzamentos":0.28,"pureza":0.34,"sobreposicao":0.704,"tela":1,"estabilidade":0.355},"medidas":{"n":122,"arestas":213,"cruzamentos":271.4,"perto":4.4,"pureza":0.892,"velocidade":0.197,"raio":796.593},"porSemente":[49.04,48.4,53.87,46.16,50.15]}},"historico":[{"geracao":0,"melhor":61.286,"media":47.023,"pior":23.739,"diversidade":0.2988},{"geracao":1,"melhor":61.286,"media":51.347,"pior":39.588,"diversidade":0.2684},{"geracao":2,"melhor":61.286,"media":54.024,"pior":46.235,"diversidade":0.2207},{"geracao":3,"melhor":61.318,"media":55.981,"pior":50.129,"diversidade":0.1943},{"geracao":4,"melhor":63.214,"media":57.736,"pior":47.79,"diversidade":0.1741},{"geracao":5,"melhor":63.486,"media":59.3,"pior":52.455,"diversidade":0.1498},{"geracao":6,"melhor":64.466,"media":58.095,"pior":46.568,"diversidade":0.1491},{"geracao":7,"melhor":64.466,"media":59.751,"pior":48.6,"diversidade":0.1307},{"geracao":8,"melhor":66.453,"media":59.542,"pior":53.198,"diversidade":0.1184},{"geracao":9,"melhor":66.453,"media":60.234,"pior":53.42,"diversidade":0.0963},{"geracao":10,"melhor":66.453,"media":60.334,"pior":53.487,"diversidade":0.086},{"geracao":11,"melhor":66.453,"media":60.952,"pior":54.062,"diversidade":0.0959},{"geracao":12,"melhor":66.453,"media":61.988,"pior":57.894,"diversidade":0.0838},{"geracao":13,"melhor":66.453,"media":60.975,"pior":56.681,"diversidade":0.0857},{"geracao":14,"melhor":66.453,"media":61.837,"pior":57.122,"diversidade":0.0698},{"geracao":15,"melhor":66.453,"media":62.342,"pior":56.853,"diversidade":0.0691},{"geracao":16,"melhor":66.453,"media":61.392,"pior":56.348,"diversidade":0.0621},{"geracao":17,"melhor":66.453,"media":61.588,"pior":57.391,"diversidade":0.0588},{"geracao":18,"melhor":66.462,"media":62.439,"pior":57.577,"diversidade":0.0651},{"geracao":19,"melhor":66.462,"media":62.667,"pior":57.991,"diversidade":0.0593},{"geracao":20,"melhor":66.462,"media":62.881,"pior":57.528,"diversidade":0.0559},{"geracao":21,"melhor":66.73,"media":63.615,"pior":58.844,"diversidade":0.0513},{"geracao":22,"melhor":66.73,"media":62.823,"pior":56.108,"diversidade":0.0477},{"geracao":23,"melhor":66.772,"media":62.523,"pior":57.225,"diversidade":0.0481},{"geracao":24,"melhor":66.772,"media":63.07,"pior":57.844,"diversidade":0.0423},{"geracao":25,"melhor":66.772,"media":62.906,"pior":58.034,"diversidade":0.0379},{"geracao":26,"melhor":66.772,"media":63.015,"pior":58.973,"diversidade":0.035},{"geracao":27,"melhor":67.749,"media":64.143,"pior":60.86,"diversidade":0.0314},{"geracao":28,"melhor":67.749,"media":62.65,"pior":57.65,"diversidade":0.0318},{"geracao":29,"melhor":67.749,"media":63.502,"pior":59.982,"diversidade":0.0262}],"retratos":{"semente":101,"manual":{"nos":[[0,0,0,null,0.5],[-81.9,221.5,1,59,0.5],[-294.2,258.3,2,22,0],[-321.2,134.9,3,22,0],[-396.2,303.7,3,22,0],[-139,313.9,3,22,0],[-335,368.3,3,22,0],[-381.4,193.9,3,22,0],[-231.8,342,3,22,0],[-439.1,247.1,3,22,0],[-363,42.7,2,34,0.17],[-365.7,-71.9,3,34,0.17],[-448.4,-58.6,3,34,0.17],[-489,27.8,3,34,0.17],[-453.7,117.1,3,34,0.17],[-145.9,401.3,2,46,0.33],[-60.9,434.2,3,46,0.33],[-192.3,246.9,3,46,0.33],[-233.5,450.3,3,46,0.33],[61.3,391.7,2,59,0.5],[100.9,494,3,59,0.5],[179.9,421.1,3,59,0.5],[-21.7,311.1,3,59,0.5],[231.5,217.4,2,71,0.67],[325,291.6,3,71,0.67],[120,305.2,3,71,0.67],[82.9,205.2,3,71,0.67],[368.3,198,3,71,0.67],[253.8,307.2,3,71,0.67],[348.3,95.9,3,71,0.67],[-224.9,43.8,2,83,0.83],[-119.5,-7.3,3,83,0.83],[-239.1,128.3,3,83,0.83],[-275,-58.7,3,83,0.83],[135,141.3,2,95,1],[139.1,21.6,3,95,1],[33.2,158.2,3,95,1],[221.7,88.8,3,95,1],[160,248.2,3,95,1],[97.3,-268.1,1,220,0.5],[-170.8,-295.3,2,185,0],[-108.7,-210.1,3,185,0],[-203.4,-61,3,185,0],[-281,-372.9,3,185,0],[-291.8,-265.4,3,185,0],[-127.3,-411.7,3,185,0],[-173.1,-141.9,2,199,0.2],[-343.5,-194.7,3,199,0.2],[-23.3,-142.9,3,199,0.2],[-131.8,67.5,3,199,0.2],[-83.4,-114.9,3,199,0.2],[-205.6,-230.2,3,199,0.2],[-305.5,-135.1,3,199,0.2],[316.7,-333.4,2,213,0.4],[354.8,-205.2,3,213,0.4],[216.2,-328.5,3,213,0.4],[321.4,-440,3,213,0.4],[218.6,-408.1,3,213,0.4],[426.3,-297.7,3,213,0.4],[-28.2,-372.2,2,227,0.6],[11,-206.5,3,227,0.6],[85.7,-376.4,3,227,0.6],[-38.2,-258,3,227,0.6],[3.3,-497.9,3,227,0.6],[54.4,-441.5,3,227,0.6],[292.6,-153.9,2,241,0.8],[214.8,-118.3,3,241,0.8],[263.9,-261,3,241,0.8],[382.1,-52.8,3,241,0.8],[192.3,-211.2,3,241,0.8],[437.8,-174.9,3,241,0.8],[130.7,-149.8,3,241,0.8],[281.8,-28.6,2,255,1],[187.7,-27.6,3,255,1],[287.4,99.5,3,255,1],[421.9,17.8,3,255,1],[143.8,-73,3,255,1]],"rotulos":["Caderno","Engenharia de IA",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Arquitetura",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"arestas":[[0,1,0],[1,2,0],[2,3,0],[2,4,0],[2,5,0],[2,6,0],[2,7,0],[2,8,0],[2,9,0],[1,10,0],[10,11,0],[10,12,0],[10,13,0],[10,14,0],[1,15,0],[15,16,0],[15,17,0],[15,18,0],[1,19,0],[19,20,0],[19,21,0],[19,22,0],[1,23,0],[23,24,0],[23,25,0],[23,26,0],[23,27,0],[23,28,0],[23,29,0],[1,30,0],[30,31,0],[30,32,0],[30,33,0],[1,34,0],[34,35,0],[34,36,0],[34,37,0],[34,38,0],[0,39,0],[39,40,0],[40,41,0],[40,42,0],[40,43,0],[40,44,0],[40,45,0],[39,46,0],[46,47,0],[46,48,0],[46,49,0],[46,50,0],[46,51,0],[46,52,0],[39,53,0],[53,54,0],[53,55,0],[53,56,0],[53,57,0],[53,58,0],[39,59,0],[59,60,0],[59,61,0],[59,62,0],[59,63,0],[59,64,0],[39,65,0],[65,66,0],[65,67,0],[65,68,0],[65,69,0],[65,70,0],[65,71,0],[39,72,0],[72,73,0],[72,74,0],[72,75,0],[72,76,0],[49,50,1],[51,43,1],[51,47,1],[52,51,1],[54,57,1],[55,54,1],[58,56,1],[61,60,1],[61,63,1],[63,57,1],[64,62,1],[64,55,1],[42,41,1],[44,41,1],[45,43,1],[45,61,1],[73,48,1],[74,75,1],[76,50,1],[66,55,1],[67,66,1],[67,61,1],[68,70,1],[71,41,1],[69,61,1],[69,62,1],[21,38,1],[22,49,1],[31,26,1],[31,33,1],[31,62,1],[32,42,1],[33,32,1],[33,41,1],[11,44,1],[12,14,1],[13,11,1],[3,11,1],[4,14,1],[6,7,1],[8,22,1],[9,3,1],[35,36,1],[35,60,1],[36,49,1],[37,38,1],[37,76,1],[38,74,1],[16,17,1],[16,20,1],[17,42,1],[18,17,1],[24,25,1],[25,5,1],[26,28,1],[28,27,1],[29,28,1],[29,54,1]]},"vencedor":{"nos":[[0,0,0,null,0.5],[-119.1,284.2,1,59,0.5],[-366.2,294.3,2,22,0],[-397.9,181.7,3,22,0],[-482.6,208.4,3,22,0],[-221.9,214.7,3,22,0],[-414.7,424.6,3,22,0],[-515.2,303,3,22,0],[-296.5,392,3,22,0],[-458,350.4,3,22,0],[-442.4,84.1,2,34,0.17],[-429.9,-47.9,3,34,0.17],[-573.6,126.8,3,34,0.17],[-577.7,20,3,34,0.17],[-508.2,3.7,3,34,0.17],[-198.8,453.3,2,46,0.33],[-137.6,526.9,3,46,0.33],[-239.6,315.1,3,46,0.33],[-283.5,516.6,3,46,0.33],[29.4,468.7,2,59,0.5],[25,584.6,3,59,0.5],[159.4,493.3,3,59,0.5],[-66,383.4,3,59,0.5],[247.8,186.9,2,71,0.67],[292.4,281.5,3,71,0.67],[88,206.7,3,71,0.67],[177,84.4,3,71,0.67],[386.8,278,3,71,0.67],[365.8,151.3,3,71,0.67],[355.2,-2.2,3,71,0.67],[-236.2,74.3,2,83,0.83],[-124.9,-40.6,3,83,0.83],[-335.1,58.7,3,83,0.83],[-289.1,-60.6,3,83,0.83],[102.6,296.3,2,95,1],[100.4,107.2,3,95,1],[10.8,230.9,3,95,1],[162.6,198.7,3,95,1],[227.7,328.6,3,95,1],[97.9,-321.2,1,220,0.5],[-193.1,-329.9,2,185,0],[-141.1,-237.6,3,185,0],[-222.8,-63.2,3,185,0],[-298.6,-422,3,185,0],[-341.1,-275.4,3,185,0],[-151.1,-456.1,3,185,0],[-185.2,-165.6,2,199,0.2],[-374.6,-188.8,3,199,0.2],[-56.2,-195.3,3,199,0.2],[-129.2,83.1,3,199,0.2],[-73.4,-116.2,3,199,0.2],[-265.7,-269.1,3,199,0.2],[-311.7,-148.6,3,199,0.2],[324.9,-451.1,2,213,0.4],[370.4,-328.9,3,213,0.4],[215.8,-441.9,3,213,0.4],[376,-565.4,3,213,0.4],[255.9,-531.1,3,213,0.4],[457.6,-442.6,3,213,0.4],[-20.9,-430.3,2,227,0.6],[28,-219,3,227,0.6],[75.1,-436,3,227,0.6],[-38.2,-313.4,3,227,0.6],[65.8,-574.9,3,227,0.6],[8.1,-519.6,3,227,0.6],[322.6,-239.4,2,241,0.8],[243.3,-222.9,3,241,0.8],[280.9,-355.8,3,241,0.8],[467.8,-266.1,3,241,0.8],[211.5,-307.7,3,241,0.8],[438.8,-148,3,241,0.8],[145.4,-197.9,3,241,0.8],[280.3,-76.5,2,255,1],[167.2,-113.4,3,255,1],[316.6,80.5,3,255,1],[433.5,-32.7,3,255,1],[176.7,-14.9,3,255,1]],"rotulos":["Caderno","Engenharia de IA",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Arquitetura",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"arestas":[[0,1,0],[1,2,0],[2,3,0],[2,4,0],[2,5,0],[2,6,0],[2,7,0],[2,8,0],[2,9,0],[1,10,0],[10,11,0],[10,12,0],[10,13,0],[10,14,0],[1,15,0],[15,16,0],[15,17,0],[15,18,0],[1,19,0],[19,20,0],[19,21,0],[19,22,0],[1,23,0],[23,24,0],[23,25,0],[23,26,0],[23,27,0],[23,28,0],[23,29,0],[1,30,0],[30,31,0],[30,32,0],[30,33,0],[1,34,0],[34,35,0],[34,36,0],[34,37,0],[34,38,0],[0,39,0],[39,40,0],[40,41,0],[40,42,0],[40,43,0],[40,44,0],[40,45,0],[39,46,0],[46,47,0],[46,48,0],[46,49,0],[46,50,0],[46,51,0],[46,52,0],[39,53,0],[53,54,0],[53,55,0],[53,56,0],[53,57,0],[53,58,0],[39,59,0],[59,60,0],[59,61,0],[59,62,0],[59,63,0],[59,64,0],[39,65,0],[65,66,0],[65,67,0],[65,68,0],[65,69,0],[65,70,0],[65,71,0],[39,72,0],[72,73,0],[72,74,0],[72,75,0],[72,76,0],[49,50,1],[51,43,1],[51,47,1],[52,51,1],[54,57,1],[55,54,1],[58,56,1],[61,60,1],[61,63,1],[63,57,1],[64,62,1],[64,55,1],[42,41,1],[44,41,1],[45,43,1],[45,61,1],[73,48,1],[74,75,1],[76,50,1],[66,55,1],[67,66,1],[67,61,1],[68,70,1],[71,41,1],[69,61,1],[69,62,1],[21,38,1],[22,49,1],[31,26,1],[31,33,1],[31,62,1],[32,42,1],[33,32,1],[33,41,1],[11,44,1],[12,14,1],[13,11,1],[3,11,1],[4,14,1],[6,7,1],[8,22,1],[9,3,1],[35,36,1],[35,60,1],[36,49,1],[37,38,1],[37,76,1],[38,74,1],[16,17,1],[16,20,1],[17,42,1],[18,17,1],[24,25,1],[25,5,1],[26,28,1],[28,27,1],[29,28,1],[29,54,1]]},"geracoes":[{"geracao":0,"aptidao":61.29,"nos":[[0,0,0,null,0.5],[-89.6,329.8,1,59,0.5],[-322.9,297.6,2,22,0],[-406.6,170.7,3,22,0],[-455.7,221.4,3,22,0],[-174.2,245.1,3,22,0],[-478.7,299.6,3,22,0],[-353.5,444.7,3,22,0],[-237.8,376.8,3,22,0],[-436.2,376.4,3,22,0],[-335.2,119.9,2,34,0.17],[-364.1,-51.8,3,34,0.17],[-504.8,149.9,3,34,0.17],[-498.4,61.8,3,34,0.17],[-429.9,-2.8,3,34,0.17],[-188,457.5,2,46,0.33],[-153.8,558.9,3,46,0.33],[-213.2,306.3,3,46,0.33],[-75.6,505.6,3,46,0.33],[50.5,418.6,2,59,0.5],[58,557.6,3,59,0.5],[187.2,469.9,3,59,0.5],[-30.4,236.3,3,59,0.5],[205.3,275.7,2,71,0.67],[255.7,401.7,3,71,0.67],[68.2,315.2,3,71,0.67],[148.2,142.2,3,71,0.67],[337.2,387.5,3,71,0.67],[359.5,216.7,3,71,0.67],[295.7,64.2,3,71,0.67],[-210.6,158.4,2,83,0.83],[-96.7,73.7,3,83,0.83],[-109.2,148,3,83,0.83],[-286.4,28.1,3,83,0.83],[120.7,231.4,2,95,1],[201,85.9,3,95,1],[21.5,156.6,3,95,1],[256.1,137.6,3,95,1],[303.4,282.9,3,95,1],[62.8,-371,1,220,0.5],[-215.5,-258.1,2,185,0],[-313.7,-178.2,3,185,0],[-227,-18,3,185,0],[-334.5,-328.2,3,185,0],[-408.7,-276,3,185,0],[-225.5,-158.6,3,185,0],[-50.3,-188.8,2,199,0.2],[-173.2,-111.8,3,199,0.2],[108,-152,3,199,0.2],[-117.4,-23.6,3,199,0.2],[115.8,-81.2,3,199,0.2],[-128.5,-292.1,3,199,0.2],[65.9,-226.8,3,199,0.2],[297.7,-348.3,2,213,0.4],[359.4,-212.6,3,213,0.4],[256.6,-452.4,3,213,0.4],[439,-288.1,3,213,0.4],[420.2,-394.1,3,213,0.4],[363.5,-475.2,3,213,0.4],[152.3,-260.3,2,227,0.6],[191.6,-126.7,3,227,0.6],[3.6,-263.1,3,227,0.6],[32.1,-163.4,3,227,0.6],[199.3,-386,3,227,0.6],[258,-241.6,3,227,0.6],[-84.9,-491.5,2,241,0.8],[43.4,-532.9,3,241,0.8],[-162.1,-425.6,3,241,0.8],[-226,-533.8,3,241,0.8],[-120.6,-365.2,3,241,0.8],[-52.9,-623.4,3,241,0.8],[-247.9,-407.6,3,241,0.8],[292.5,-146.8,2,255,1],[274.3,-25.1,3,255,1],[379.8,44.5,3,255,1],[454.4,-127.2,3,255,1],[357.9,-41.1,3,255,1]],"rotulos":["Caderno","Engenharia de IA",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Arquitetura",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"arestas":[[0,1,0],[1,2,0],[2,3,0],[2,4,0],[2,5,0],[2,6,0],[2,7,0],[2,8,0],[2,9,0],[1,10,0],[10,11,0],[10,12,0],[10,13,0],[10,14,0],[1,15,0],[15,16,0],[15,17,0],[15,18,0],[1,19,0],[19,20,0],[19,21,0],[19,22,0],[1,23,0],[23,24,0],[23,25,0],[23,26,0],[23,27,0],[23,28,0],[23,29,0],[1,30,0],[30,31,0],[30,32,0],[30,33,0],[1,34,0],[34,35,0],[34,36,0],[34,37,0],[34,38,0],[0,39,0],[39,40,0],[40,41,0],[40,42,0],[40,43,0],[40,44,0],[40,45,0],[39,46,0],[46,47,0],[46,48,0],[46,49,0],[46,50,0],[46,51,0],[46,52,0],[39,53,0],[53,54,0],[53,55,0],[53,56,0],[53,57,0],[53,58,0],[39,59,0],[59,60,0],[59,61,0],[59,62,0],[59,63,0],[59,64,0],[39,65,0],[65,66,0],[65,67,0],[65,68,0],[65,69,0],[65,70,0],[65,71,0],[39,72,0],[72,73,0],[72,74,0],[72,75,0],[72,76,0],[49,50,1],[51,43,1],[51,47,1],[52,51,1],[54,57,1],[55,54,1],[58,56,1],[61,60,1],[61,63,1],[63,57,1],[64,62,1],[64,55,1],[42,41,1],[44,41,1],[45,43,1],[45,61,1],[73,48,1],[74,75,1],[76,50,1],[66,55,1],[67,66,1],[67,61,1],[68,70,1],[71,41,1],[69,61,1],[69,62,1],[21,38,1],[22,49,1],[31,26,1],[31,33,1],[31,62,1],[32,42,1],[33,32,1],[33,41,1],[11,44,1],[12,14,1],[13,11,1],[3,11,1],[4,14,1],[6,7,1],[8,22,1],[9,3,1],[35,36,1],[35,60,1],[36,49,1],[37,38,1],[37,76,1],[38,74,1],[16,17,1],[16,20,1],[17,42,1],[18,17,1],[24,25,1],[25,5,1],[26,28,1],[28,27,1],[29,28,1],[29,54,1]]},{"geracao":10,"aptidao":66.45,"nos":[[0,0,0,null,0.5],[-149.2,307.6,1,59,0.5],[-378,316.3,2,22,0],[-400,202.1,3,22,0],[-482.6,217.4,3,22,0],[-234.7,231,3,22,0],[-518.6,305.5,3,22,0],[-434.1,439.2,3,22,0],[-343.2,436,3,22,0],[-474.1,363.2,3,22,0],[-424.2,102.4,2,34,0.17],[-406.1,-20.3,3,34,0.17],[-556.5,134.2,3,34,0.17],[-556.3,31.1,3,34,0.17],[-487.6,17.5,3,34,0.17],[36,406.6,2,46,0.33],[48.4,504.5,3,46,0.33],[-9.2,288.4,3,46,0.33],[141.3,430,3,46,0.33],[-179.6,473.9,2,59,0.5],[-109.3,577.6,3,59,0.5],[-52.1,468.1,3,59,0.5],[-265.9,301.6,3,59,0.5],[198.4,219.4,2,71,0.67],[233.7,326.5,3,71,0.67],[61.4,248.6,3,71,0.67],[149.1,94.9,3,71,0.67],[325.3,308.4,3,71,0.67],[316.3,179.5,3,71,0.67],[306.1,30.4,3,71,0.67],[-261.9,83.9,2,83,0.83],[-110.7,-61.4,3,83,0.83],[-185.7,93.7,3,83,0.83],[-278.9,-54.8,3,83,0.83],[-22.8,188.7,2,95,1],[-125.6,14.5,3,95,1],[-127.1,158.4,3,95,1],[93.5,151.8,3,95,1],[107.2,294.4,3,95,1],[86.3,-304,1,220,0.5],[-187.1,-311.5,2,185,0],[-128.9,-215,3,185,0],[-175.1,-64,3,185,0],[-280.5,-431.4,3,185,0],[-310.3,-230.7,3,185,0],[-144.9,-433.7,3,185,0],[-218.1,-189.5,2,199,0.2],[-400.4,-203.2,3,199,0.2],[-47.3,-192.3,3,199,0.2],[-234.5,1.9,3,199,0.2],[-98.7,-133.4,3,199,0.2],[-325.1,-307,3,199,0.2],[-343.1,-151.7,3,199,0.2],[321,-405.4,2,213,0.4],[324.8,-286,3,213,0.4],[285.3,-478.2,3,213,0.4],[382.4,-517.4,3,213,0.4],[212.1,-469,3,213,0.4],[454.9,-393.7,3,213,0.4],[-26.4,-453,2,227,0.6],[-77.6,-286.2,3,227,0.6],[59.9,-418.4,3,227,0.6],[-24,-331.4,3,227,0.6],[30.5,-566.3,3,227,0.6],[88.1,-502.7,3,227,0.6],[297.2,-209.7,2,241,0.8],[400.2,-299.6,3,241,0.8],[244.2,-329.5,3,241,0.8],[452.6,-212,3,241,0.8],[193.4,-272.4,3,241,0.8],[397.1,-105.5,3,241,0.8],[132.6,-185.2,3,241,0.8],[259.7,-61.5,2,255,1],[163.2,-115,3,255,1],[259.2,99.3,3,255,1],[394,7.5,3,255,1],[146.8,-30.7,3,255,1]],"rotulos":["Caderno","Engenharia de IA",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Arquitetura",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"arestas":[[0,1,0],[1,2,0],[2,3,0],[2,4,0],[2,5,0],[2,6,0],[2,7,0],[2,8,0],[2,9,0],[1,10,0],[10,11,0],[10,12,0],[10,13,0],[10,14,0],[1,15,0],[15,16,0],[15,17,0],[15,18,0],[1,19,0],[19,20,0],[19,21,0],[19,22,0],[1,23,0],[23,24,0],[23,25,0],[23,26,0],[23,27,0],[23,28,0],[23,29,0],[1,30,0],[30,31,0],[30,32,0],[30,33,0],[1,34,0],[34,35,0],[34,36,0],[34,37,0],[34,38,0],[0,39,0],[39,40,0],[40,41,0],[40,42,0],[40,43,0],[40,44,0],[40,45,0],[39,46,0],[46,47,0],[46,48,0],[46,49,0],[46,50,0],[46,51,0],[46,52,0],[39,53,0],[53,54,0],[53,55,0],[53,56,0],[53,57,0],[53,58,0],[39,59,0],[59,60,0],[59,61,0],[59,62,0],[59,63,0],[59,64,0],[39,65,0],[65,66,0],[65,67,0],[65,68,0],[65,69,0],[65,70,0],[65,71,0],[39,72,0],[72,73,0],[72,74,0],[72,75,0],[72,76,0],[49,50,1],[51,43,1],[51,47,1],[52,51,1],[54,57,1],[55,54,1],[58,56,1],[61,60,1],[61,63,1],[63,57,1],[64,62,1],[64,55,1],[42,41,1],[44,41,1],[45,43,1],[45,61,1],[73,48,1],[74,75,1],[76,50,1],[66,55,1],[67,66,1],[67,61,1],[68,70,1],[71,41,1],[69,61,1],[69,62,1],[21,38,1],[22,49,1],[31,26,1],[31,33,1],[31,62,1],[32,42,1],[33,32,1],[33,41,1],[11,44,1],[12,14,1],[13,11,1],[3,11,1],[4,14,1],[6,7,1],[8,22,1],[9,3,1],[35,36,1],[35,60,1],[36,49,1],[37,38,1],[37,76,1],[38,74,1],[16,17,1],[16,20,1],[17,42,1],[18,17,1],[24,25,1],[25,5,1],[26,28,1],[28,27,1],[29,28,1],[29,54,1]]},{"geracao":19,"aptidao":66.46,"nos":[[0,0,0,null,0.5],[-165.8,247.1,1,59,0.5],[-352.3,338.4,2,22,0],[-419.9,193.6,3,22,0],[-472.3,270.4,3,22,0],[-186.2,376.4,3,22,0],[-364,468.7,3,22,0],[-472.2,379.1,3,22,0],[-260.1,405.4,3,22,0],[-317.4,250,3,22,0],[-438.3,92.3,2,34,0.17],[-412,-33.9,3,34,0.17],[-534.2,190,3,34,0.17],[-541.2,-11.1,3,34,0.17],[-550.4,78.5,3,34,0.17],[-130.1,458.8,2,46,0.33],[-113.4,554.4,3,46,0.33],[-109.6,337,3,46,0.33],[-40.1,518.5,3,46,0.33],[25.4,405.6,2,59,0.5],[64.3,526.3,3,59,0.5],[154.7,454.1,3,59,0.5],[-49.1,291.6,3,59,0.5],[190.3,227.5,2,71,0.67],[304.9,284.2,3,71,0.67],[100.9,329.4,3,71,0.67],[120.5,121.9,3,71,0.67],[291.6,357.8,3,71,0.67],[306.2,195.5,3,71,0.67],[285.7,37.4,3,71,0.67],[-253,57.4,2,83,0.83],[-120.8,-46.6,3,83,0.83],[-348.4,26.7,3,83,0.83],[-271.3,-78,3,83,0.83],[80.8,211.9,2,95,1],[132.2,47.4,3,95,1],[-9.7,169.1,3,95,1],[213.1,134.7,3,95,1],[220.7,297.1,3,95,1],[114.7,-307.4,1,220,0.5],[-169.1,-308.2,2,185,0],[-110.6,-216.5,3,185,0],[-193.2,-46.8,3,185,0],[-267,-431.9,3,185,0],[-294.3,-232.2,3,185,0],[-128.9,-434.4,3,185,0],[-188.5,-179.7,2,199,0.2],[-377.8,-210.2,3,199,0.2],[-33.1,-185.4,3,199,0.2],[-147.6,41.8,3,199,0.2],[-73.6,-125.1,3,199,0.2],[-284.9,-303.3,3,199,0.2],[-322,-153,3,199,0.2],[326.3,-422.9,2,213,0.4],[329.6,-287.7,3,213,0.4],[241.1,-422.9,3,213,0.4],[354.8,-540.4,3,213,0.4],[224.1,-496.2,3,213,0.4],[452.6,-424.4,3,213,0.4],[-13.5,-415.9,2,227,0.6],[36.4,-223.9,3,227,0.6],[82.3,-411.3,3,227,0.6],[-22.9,-297.7,3,227,0.6],[18.8,-550.8,3,227,0.6],[65.3,-490,3,227,0.6],[321.6,-204.6,2,241,0.8],[412.7,-297.9,3,241,0.8],[261.3,-316.1,3,241,0.8],[471.6,-219,3,241,0.8],[207.1,-244,3,241,0.8],[428.8,-106.8,3,241,0.8],[147,-173.3,3,241,0.8],[300.8,-60.3,2,255,1],[196.4,-112.7,3,255,1],[349,104.2,3,255,1],[437.3,-5.7,3,255,1],[175.9,-39,3,255,1]],"rotulos":["Caderno","Engenharia de IA",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Arquitetura",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"arestas":[[0,1,0],[1,2,0],[2,3,0],[2,4,0],[2,5,0],[2,6,0],[2,7,0],[2,8,0],[2,9,0],[1,10,0],[10,11,0],[10,12,0],[10,13,0],[10,14,0],[1,15,0],[15,16,0],[15,17,0],[15,18,0],[1,19,0],[19,20,0],[19,21,0],[19,22,0],[1,23,0],[23,24,0],[23,25,0],[23,26,0],[23,27,0],[23,28,0],[23,29,0],[1,30,0],[30,31,0],[30,32,0],[30,33,0],[1,34,0],[34,35,0],[34,36,0],[34,37,0],[34,38,0],[0,39,0],[39,40,0],[40,41,0],[40,42,0],[40,43,0],[40,44,0],[40,45,0],[39,46,0],[46,47,0],[46,48,0],[46,49,0],[46,50,0],[46,51,0],[46,52,0],[39,53,0],[53,54,0],[53,55,0],[53,56,0],[53,57,0],[53,58,0],[39,59,0],[59,60,0],[59,61,0],[59,62,0],[59,63,0],[59,64,0],[39,65,0],[65,66,0],[65,67,0],[65,68,0],[65,69,0],[65,70,0],[65,71,0],[39,72,0],[72,73,0],[72,74,0],[72,75,0],[72,76,0],[49,50,1],[51,43,1],[51,47,1],[52,51,1],[54,57,1],[55,54,1],[58,56,1],[61,60,1],[61,63,1],[63,57,1],[64,62,1],[64,55,1],[42,41,1],[44,41,1],[45,43,1],[45,61,1],[73,48,1],[74,75,1],[76,50,1],[66,55,1],[67,66,1],[67,61,1],[68,70,1],[71,41,1],[69,61,1],[69,62,1],[21,38,1],[22,49,1],[31,26,1],[31,33,1],[31,62,1],[32,42,1],[33,32,1],[33,41,1],[11,44,1],[12,14,1],[13,11,1],[3,11,1],[4,14,1],[6,7,1],[8,22,1],[9,3,1],[35,36,1],[35,60,1],[36,49,1],[37,38,1],[37,76,1],[38,74,1],[16,17,1],[16,20,1],[17,42,1],[18,17,1],[24,25,1],[25,5,1],[26,28,1],[28,27,1],[29,28,1],[29,54,1]]},{"geracao":29,"aptidao":67.75,"nos":[[0,0,0,null,0.5],[-191.6,285.8,1,59,0.5],[-397.1,331.2,2,22,0],[-434.3,212.1,3,22,0],[-513.3,234.6,3,22,0],[-334.2,231.3,3,22,0],[-411.4,458.4,3,22,0],[-529.8,338.4,3,22,0],[-261.2,406.4,3,22,0],[-483.4,398.9,3,22,0],[-460.6,98.7,2,34,0.17],[-444.4,-26.6,3,34,0.17],[-588.1,138.4,3,34,0.17],[-594.2,20.2,3,34,0.17],[-519.9,18.9,3,34,0.17],[-158.8,489.8,2,46,0.33],[-90.5,572.9,3,46,0.33],[-128.1,380.7,3,46,0.33],[-227,563.1,3,46,0.33],[27.5,467.1,2,59,0.5],[72.8,580.6,3,59,0.5],[158.9,495.2,3,59,0.5],[27,362.7,3,59,0.5],[-11.9,185.5,2,71,0.67],[-23,287.7,3,71,0.67],[-141.1,173.5,3,71,0.67],[-108.5,105.1,3,71,0.67],[63.9,280.7,3,71,0.67],[85,148.9,3,71,0.67],[147.3,-14.9,3,71,0.67],[-284.1,32.8,2,83,0.83],[-224.2,-81.2,3,83,0.83],[-365.7,10.8,3,83,0.83],[-362.8,-115.8,3,83,0.83],[166.4,285.6,2,95,1],[171.7,107,3,95,1],[260.1,299.3,3,95,1],[317.8,247,3,95,1],[290,382.1,3,95,1],[239.6,-208.7,1,220,0.5],[-117.7,-177.5,2,185,0],[-201.9,-169.7,3,185,0],[-178,24.8,3,185,0],[-12.9,-169.6,3,185,0],[-314.4,-208.2,3,185,0],[-201.6,-264.3,3,185,0],[336.1,-29.2,2,199,0.2],[427.2,-49.9,3,199,0.2],[483.8,-109.9,3,199,0.2],[240.3,150.5,3,199,0.2],[359.2,80.5,3,199,0.2],[232.6,-64.3,3,199,0.2],[395.2,-135.3,3,199,0.2],[323.7,-437.6,2,213,0.4],[233.5,-337.7,3,213,0.4],[170.5,-539.2,3,213,0.4],[406.3,-530.3,3,213,0.4],[248,-537.1,3,213,0.4],[449.9,-388.5,3,213,0.4],[-15.9,-361.2,2,227,0.6],[52.8,-209.7,3,227,0.6],[-104.9,-401.1,3,227,0.6],[-139,-323.9,3,227,0.6],[6.7,-526.6,3,227,0.6],[-63.8,-487.7,3,227,0.6],[125.3,-353.7,2,241,0.8],[168.8,-415.8,3,241,0.8],[67.8,-499.6,3,241,0.8],[205.8,-464.7,3,241,0.8],[37.3,-429,3,241,0.8],[301.9,-337.3,3,241,0.8],[-11,-273,3,241,0.8],[471.9,58.1,2,255,1],[587,9.2,3,255,1],[432.2,221.9,3,255,1],[574.4,128.2,3,255,1],[490.1,174.3,3,255,1]],"rotulos":["Caderno","Engenharia de IA",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Arquitetura",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"arestas":[[0,1,0],[1,2,0],[2,3,0],[2,4,0],[2,5,0],[2,6,0],[2,7,0],[2,8,0],[2,9,0],[1,10,0],[10,11,0],[10,12,0],[10,13,0],[10,14,0],[1,15,0],[15,16,0],[15,17,0],[15,18,0],[1,19,0],[19,20,0],[19,21,0],[19,22,0],[1,23,0],[23,24,0],[23,25,0],[23,26,0],[23,27,0],[23,28,0],[23,29,0],[1,30,0],[30,31,0],[30,32,0],[30,33,0],[1,34,0],[34,35,0],[34,36,0],[34,37,0],[34,38,0],[0,39,0],[39,40,0],[40,41,0],[40,42,0],[40,43,0],[40,44,0],[40,45,0],[39,46,0],[46,47,0],[46,48,0],[46,49,0],[46,50,0],[46,51,0],[46,52,0],[39,53,0],[53,54,0],[53,55,0],[53,56,0],[53,57,0],[53,58,0],[39,59,0],[59,60,0],[59,61,0],[59,62,0],[59,63,0],[59,64,0],[39,65,0],[65,66,0],[65,67,0],[65,68,0],[65,69,0],[65,70,0],[65,71,0],[39,72,0],[72,73,0],[72,74,0],[72,75,0],[72,76,0],[49,50,1],[51,43,1],[51,47,1],[52,51,1],[54,57,1],[55,54,1],[58,56,1],[61,60,1],[61,63,1],[63,57,1],[64,62,1],[64,55,1],[42,41,1],[44,41,1],[45,43,1],[45,61,1],[73,48,1],[74,75,1],[76,50,1],[66,55,1],[67,66,1],[67,61,1],[68,70,1],[71,41,1],[69,61,1],[69,62,1],[21,38,1],[22,49,1],[31,26,1],[31,33,1],[31,62,1],[32,42,1],[33,32,1],[33,41,1],[11,44,1],[12,14,1],[13,11,1],[3,11,1],[4,14,1],[6,7,1],[8,22,1],[9,3,1],[35,36,1],[35,60,1],[36,49,1],[37,38,1],[37,76,1],[38,74,1],[16,17,1],[16,20,1],[17,42,1],[18,17,1],[24,25,1],[25,5,1],[26,28,1],[28,27,1],[29,28,1],[29,54,1]]}]},"aptidao":{"pesos":{"cruzamentos":0.3,"pureza":0.25,"sobreposicao":0.2,"tela":0.15,"estabilidade":0.1},"escalas":{"cruzamentosPorAresta":1,"pertoPorNo":0.1,"impureza":0.1,"velocidade":0.08,"foraDaFaixa":150},"limiarPerto":65,"faixaRaio":{"min":400,"max":650,"nReferencia":77}}}</script>
+<script>
+(() => {
+const D = JSON.parse(document.getElementById('dados').textContent);
+const css = (k) => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, pai) => {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (pai) pai.appendChild(e);
+  return e;
+};
+const txt = (pai, x, y, s, attrs = {}) => { const t = el('text', { x, y, ...attrs }, pai); t.textContent = s; return t; };
+const f1 = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const sinal = (v) => (v >= 0 ? '+' : '−') + f1(Math.abs(v));
+
+function dica(caixa) {
+  const d = document.createElement('div');
+  d.className = 'dica'; d.hidden = true; caixa.appendChild(d);
+  return {
+    mostrar(titulo, linhas, x, y) {
+      d.replaceChildren();
+      const t = document.createElement('div'); t.className = 't'; t.textContent = titulo; d.appendChild(t);
+      for (const [rot, val, cor, tracejado] of linhas) {
+        const l = document.createElement('div'); l.className = 'l';
+        const s = document.createElement('span');
+        if (cor) { const k = document.createElement('i'); k.className = 'chave' + (tracejado ? ' tracejada' : ''); k.style.borderColor = cor; s.appendChild(k); }
+        s.appendChild(document.createTextNode(rot));
+        const b = document.createElement('b'); b.className = 'num'; b.textContent = val;
+        l.append(s, b); d.appendChild(l);
+      }
+      d.hidden = false;
+      const w = caixa.clientWidth, dw = d.offsetWidth;
+      d.style.left = Math.max(0, Math.min(w - dw, x + 14)) + 'px';
+      d.style.top = Math.max(0, y - d.offsetHeight - 10) + 'px';
+    },
+    esconder() { d.hidden = true; }
+  };
+}
+
+/* ---------- 1. treino, teste, grafo maior: halteres com margem de erro ---------- */
+function halteres() {
+  const caixa = document.getElementById('g-halteres');
+  const linhas = [
+    ['treino', 'sementes que a evolução viu', D.treino],
+    ['teste', '10 sementes nunca vistas', D.teste],
+    ['grafo maior', D.sintetico.nos + ' nós, sintético', D.sintetico]
+  ];
+  const W = 720, H = 44 + linhas.length * 64, E = 170, Dm = 60;
+  const todos = linhas.flatMap(([, , r]) => [r.manual.aptidao - r.manual.erro, r.evoluido.aptidao + r.evoluido.erro, r.manual.aptidao + r.manual.erro, r.evoluido.aptidao - r.evoluido.erro]);
+  const lo = Math.floor((Math.min(...todos) - 3) / 10) * 10, hi = Math.ceil((Math.max(...todos) + 3) / 10) * 10;
+  const x = (v) => E + ((v - lo) / (hi - lo)) * (W - E - Dm);
+  const svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', tabindex: '0',
+    'aria-label': 'Aptidão média do manual e do evoluído em treino, teste e grafo maior' }, caixa);
+  for (let v = lo; v <= hi; v += 10) {
+    el('line', { x1: x(v), x2: x(v), y1: 20, y2: H - 22, stroke: css('--grid'), 'stroke-width': 1 }, svg);
+    txt(svg, x(v), H - 6, v, { 'text-anchor': 'middle' });
+  }
+  const tip = dica(caixa);
+  linhas.forEach(([nome, sub, r], i) => {
+    const y = 48 + i * 64;
+    txt(svg, 0, y - 3, nome, { class: 'rot-forte' });
+    txt(svg, 0, y + 14, sub);
+    const m = r.manual, e = r.evoluido;
+    el('line', { x1: x(m.aptidao), x2: x(e.aptidao), y1: y, y2: y, stroke: css('--line'), 'stroke-width': 6, 'stroke-linecap': 'round' }, svg);
+    for (const [s, cor] of [[m, css('--man')], [e, css('--evo')]]) {
+      el('line', { x1: x(s.aptidao - s.erro), x2: x(s.aptidao + s.erro), y1: y, y2: y, stroke: cor, 'stroke-width': 2, 'stroke-linecap': 'round', opacity: .55 }, svg);
+      el('circle', { cx: x(s.aptidao), cy: y, r: 6, fill: cor, stroke: css('--bg'), 'stroke-width': 2 }, svg);
+    }
+    const d = e.aptidao - m.aptidao;
+    txt(svg, W, y + 4, sinal(d), { 'text-anchor': 'end', class: 'rot-forte' });
+    const alvo = el('rect', { x: E - 10, y: y - 20, width: W - E - Dm + 20, height: 40, fill: 'transparent' }, svg);
+    const mostrar = (ev) => {
+      const b = caixa.getBoundingClientRect();
+      const px = ev && ev.clientX ? ev.clientX - b.left : (x(e.aptidao) / W) * caixa.clientWidth;
+      tip.mostrar(nome, [
+        ['evoluído', f1(e.aptidao) + ' ± ' + f1(e.erro), css('--evo')],
+        ['manual', f1(m.aptidao) + ' ± ' + f1(m.erro), css('--man')],
+        ['diferença', sinal(d)]
+      ], px, (y / H) * caixa.clientHeight);
+    };
+    alvo.addEventListener('pointermove', mostrar);
+    alvo.addEventListener('pointerleave', () => tip.esconder());
+  });
+  svg.addEventListener('focus', () => {
+    const r = D.teste;
+    tip.mostrar('teste', [['evoluído', f1(r.evoluido.aptidao) + ' ± ' + f1(r.evoluido.erro), css('--evo')], ['manual', f1(r.manual.aptidao) + ' ± ' + f1(r.manual.erro), css('--man')]], caixa.clientWidth * .6, caixa.clientHeight * .55);
+  });
+  svg.addEventListener('blur', () => tip.esconder());
+}
+
+/* ---------- 2. retratos do universo ---------- */
+const MAIOR_RAIO = (() => {
+  let m = 0;
+  for (const r of [D.retratos.manual, D.retratos.vencedor, ...D.retratos.geracoes])
+    for (const [x, y] of r.nos) m = Math.max(m, Math.hypot(x, y));
+  return m * 1.1;
+})();
+
+function retrato(caixa, r, { rotulos = false } = {}) {
+  const R = MAIOR_RAIO, T = 2 * R;
+  const svg = el('svg', { viewBox: [-R, -R, T, T].join(' '), role: 'img', 'aria-label': 'Layout assentado do grafo' }, caixa);
+  const S = css('--node-s'), L = parseFloat(css('--node-l')), LR = parseFloat(css('--node-r'));
+  const cor = (h, sh) => h === null ? css('--core') : 'hsl(' + h + ',' + S + ',' + (L + (sh - .5) * LR).toFixed(1) + '%)';
+  const k = T / 300;
+  for (const [a, b, cruz] of r.arestas) {
+    const A = r.nos[a], B = r.nos[b];
+    el('line', { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: cruz ? css('--edge-x') : css('--edge'), 'stroke-width': (cruz ? .8 : 1) * k }, svg);
+  }
+  const raio = [5.2, 3.8, 2.4, 1.6, 1.4];
+  const ordem = r.nos.map((n, i) => i).sort((i, j) => r.nos[j][2] - r.nos[i][2]);
+  for (const i of ordem) {
+    const [x, y, d, h, sh] = r.nos[i];
+    el('circle', { cx: x, cy: y, r: raio[Math.min(d, 4)] * k, fill: cor(h, sh) }, svg);
+  }
+  if (rotulos) {
+    r.nos.forEach(([x, y, d], i) => {
+      if (d !== 1 || !r.rotulos[i]) return;
+      txt(svg, x, y + 11 * k, r.rotulos[i], { 'text-anchor': 'middle', class: 'rot', style: 'font-size:' + (10.5 * k).toFixed(1) + 'px' });
+    });
+  }
+}
+
+function retratos() {
+  retrato(document.getElementById('r-manual'), D.retratos.manual, { rotulos: true });
+  retrato(document.getElementById('r-vencedor'), D.retratos.vencedor, { rotulos: true });
+  D.retratos.geracoes.forEach((g, i) => retrato(document.getElementById('r-g' + i), g));
+}
+
+/* ---------- 3. curva de aptidão ---------- */
+function curva() {
+  const caixa = document.getElementById('g-curva');
+  const H0 = D.historico, n = H0.length;
+  const W = 720, H = 300, E = 34, Dm = 96, T = 14, B = 30;
+  const base = D.treino.manual.aptidao;
+  const vals = H0.flatMap((h) => [h.pior, h.melhor]).concat(base);
+  const lo = Math.max(0, Math.floor((Math.min(...vals) - 2) / 10) * 10), hi = Math.ceil((Math.max(...vals) + 2) / 10) * 10;
+  const x = (g) => E + (g / Math.max(1, n - 1)) * (W - E - Dm);
+  const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  const svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', tabindex: '0',
+    'aria-label': 'Aptidão do melhor indivíduo e da média da população por geração' }, caixa);
+  for (let v = lo; v <= hi; v += 10) {
+    el('line', { x1: E, x2: W - Dm, y1: y(v), y2: y(v), stroke: css('--grid'), 'stroke-width': 1 }, svg);
+    txt(svg, E - 8, y(v) + 4, v, { 'text-anchor': 'end' });
+  }
+  const passo = n > 20 ? 5 : 2;
+  for (let g = 0; g < n; g += passo) txt(svg, x(g), H - 8, g, { 'text-anchor': 'middle' });
+  txt(svg, W - Dm, H - 8, 'geração', { 'text-anchor': 'end' });
+
+  const faixa = H0.map((h, g) => x(g) + ',' + y(h.melhor)).join(' ') + ' ' + H0.slice().reverse().map((h, i) => x(n - 1 - i) + ',' + y(h.pior)).join(' ');
+  el('polygon', { points: faixa, fill: css('--evo-wash') }, svg);
+  el('line', { x1: E, x2: W - Dm, y1: y(base), y2: y(base), stroke: css('--man'), 'stroke-width': 2, 'stroke-dasharray': '6 5' }, svg);
+  const linha = (k, extra) => el('polyline', { points: H0.map((h, g) => x(g) + ',' + y(h[k])).join(' '), fill: 'none', stroke: css('--evo'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', ...extra }, svg);
+  linha('media', { 'stroke-dasharray': '2 5', opacity: .9 });
+  linha('melhor');
+  const ult = H0[n - 1];
+  el('circle', { cx: x(n - 1), cy: y(ult.melhor), r: 4.5, fill: css('--evo'), stroke: css('--bg'), 'stroke-width': 2 }, svg);
+  const rotulos = [[ult.melhor, 'melhor ' + f1(ult.melhor)], [ult.media, 'média ' + f1(ult.media)], [base, 'manual ' + f1(base)]]
+    .sort((a, b) => b[0] - a[0]);
+  let ultimoY = -Infinity;
+  for (const [v, s] of rotulos) {
+    const yy = Math.max(y(v) + 4, ultimoY + 15);
+    txt(svg, W - Dm + 10, yy, s, { class: 'rot' });
+    ultimoY = yy;
+  }
+
+  const tip = dica(caixa);
+  const cruz = el('line', { y1: T, y2: H - B, stroke: css('--muted'), 'stroke-width': 1, opacity: 0 }, svg);
+  const ponto = el('circle', { r: 4.5, fill: css('--evo'), stroke: css('--bg'), 'stroke-width': 2, opacity: 0 }, svg);
+  let atual = n - 1;
+  const mostrar = (g) => {
+    atual = g;
+    const h = H0[g];
+    cruz.setAttribute('x1', x(g)); cruz.setAttribute('x2', x(g)); cruz.setAttribute('opacity', .5);
+    ponto.setAttribute('cx', x(g)); ponto.setAttribute('cy', y(h.melhor)); ponto.setAttribute('opacity', 1);
+    tip.mostrar('geração ' + g, [
+      ['melhor', f1(h.melhor), css('--evo')],
+      ['média', f1(h.media), css('--evo'), true],
+      ['pior', f1(h.pior)],
+      ['manual', f1(base), css('--man'), true],
+      ['diversidade', h.diversidade.toLocaleString('pt-BR', { maximumFractionDigits: 3 })]
+    ], (x(g) / W) * caixa.clientWidth, (y(h.melhor) / H) * caixa.clientHeight);
+  };
+  const esconder = () => { cruz.setAttribute('opacity', 0); ponto.setAttribute('opacity', 0); tip.esconder(); };
+  const alvo = el('rect', { x: E, y: T, width: W - E - Dm, height: H - T - B, fill: 'transparent' }, svg);
+  alvo.addEventListener('pointermove', (ev) => {
+    const b = svg.getBoundingClientRect();
+    const vx = ((ev.clientX - b.left) / b.width) * W;
+    mostrar(Math.max(0, Math.min(n - 1, Math.round(((vx - E) / (W - E - Dm)) * (n - 1)))));
+  });
+  alvo.addEventListener('pointerleave', esconder);
+  svg.addEventListener('focus', () => mostrar(atual));
+  svg.addEventListener('blur', esconder);
+  svg.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowLeft') { mostrar(Math.max(0, atual - 1)); ev.preventDefault(); }
+    if (ev.key === 'ArrowRight') { mostrar(Math.min(n - 1, atual + 1)); ev.preventDefault(); }
+  });
+}
+
+/* ---------- 4. critérios, lado a lado ---------- */
+function criterios() {
+  const caixa = document.getElementById('g-criterios');
+  const NOMES = { cruzamentos: 'poucos cruzamentos', pureza: 'continentes limpos', sobreposicao: 'nada colado', tela: 'cabe na tela', estabilidade: 'assenta' };
+  const ks = Object.keys(D.aptidao.pesos);
+  const W = 720, linha = 46, H = 16 + ks.length * linha + 22, E = 190, Dm = 56;
+  const x = (v) => E + v * (W - E - Dm);
+  const svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', tabindex: '0',
+    'aria-label': 'Nota de cada critério, de 0 a 1, para manual e evoluído nas sementes de teste' }, caixa);
+  for (const v of [0, .25, .5, .75, 1]) {
+    el('line', { x1: x(v), x2: x(v), y1: 8, y2: H - 22, stroke: css('--grid'), 'stroke-width': 1 }, svg);
+    txt(svg, x(v), H - 6, v.toLocaleString('pt-BR'), { 'text-anchor': 'middle' });
+  }
+  const tip = dica(caixa);
+  ks.forEach((k, i) => {
+    const y0 = 14 + i * linha;
+    txt(svg, 0, y0 + 14, NOMES[k] || k, { class: 'rot-forte' });
+    txt(svg, 0, y0 + 30, 'peso ' + Math.round(D.aptidao.pesos[k] * 100) + '%');
+    const m = D.teste.manual.partes[k], e = D.teste.evoluido.partes[k];
+    [[m, css('--man'), 0], [e, css('--evo'), 1]].forEach(([v, cor, j]) => {
+      const yy = y0 + 6 + j * 16;
+      const w = Math.max(2, x(v) - x(0));
+      el('path', { d: 'M' + x(0) + ',' + yy + 'h' + (w - 4) + 'a4,4 0 0 1 4,4v4a4,4 0 0 1 -4,4h-' + (w - 4) + 'z', fill: cor }, svg);
+      txt(svg, x(v) + 6, yy + 10, v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    });
+    const alvo = el('rect', { x: 0, y: y0, width: W, height: linha - 4, fill: 'transparent' }, svg);
+    alvo.addEventListener('pointermove', (ev) => {
+      const b = caixa.getBoundingClientRect();
+      tip.mostrar(NOMES[k], [['evoluído', e.toFixed(2).replace('.', ','), css('--evo')], ['manual', m.toFixed(2).replace('.', ','), css('--man')]], ev.clientX - b.left, ((y0 + 10) / H) * caixa.clientHeight);
+    });
+    alvo.addEventListener('pointerleave', () => tip.esconder());
+  });
+}
+
+halteres(); retratos(); curva(); criterios();
+})();
+</script>
+</body>
+</html>

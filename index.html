@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Caderno — grafo vivo</title>
+<meta name="description" content="Caderno pessoal como grafo de rede vivo.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='6' fill='%23E0B36A'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles/style.css">
+</head>
+<body>
+
+<canvas id="sky" tabindex="0" aria-label="Grafo de rede do caderno pessoal"></canvas>
+
+<header class="chrome masthead">
+  <h1>Caderno</h1>
+  <p>Cada nó é uma nota. As arestas são o que uma puxa da outra.</p>
+  <p class="stats" id="stats"></p>
+  <p class="fisica" id="fisica"></p>
+</header>
+
+<div class="chrome legend" aria-hidden="true">
+  <span><i class="dot vazio"></i>vazio</span>
+  <span><i class="dot rascunho"></i>rascunho</span>
+  <span><i class="dot estudado"></i>estudado</span>
+  <span><i class="dot reproduzido"></i>reproduzido</span>
+</div>
+
+<div class="chrome readout" id="readout">
+  <div class="name" id="ro-name"></div>
+  <div class="rel" id="ro-rel"></div>
+</div>
+
+<div class="chrome hint" id="hint">clique num nó para abrir a nota · passe o mouse para acender o assunto</div>
+
+<aside class="panel" id="panel" aria-hidden="true" aria-labelledby="panel-title">
+  <button class="panel-close" id="panel-close" type="button" aria-label="Fechar nota">&times;</button>
+  <div class="panel-scroll">
+    <p class="panel-path" id="panel-path"></p>
+    <h2 class="panel-title" id="panel-title"></h2>
+    <div class="panel-meta">
+      <p class="panel-status" id="panel-status" hidden></p>
+      <button class="panel-edit" id="panel-edit" type="button" hidden>Editar</button>
+      <p class="panel-aviso" id="panel-aviso" aria-live="polite" hidden></p>
+    </div>
+    <div id="panel-view">
+      <div class="panel-body" id="panel-body"></div>
+      <div class="panel-links" id="panel-links"></div>
+    </div>
+    <div class="editor" id="editor" hidden>
+      <div class="ed-status" id="ed-status" role="radiogroup" aria-label="Status de estudo"></div>
+      <textarea id="ed-texto" spellcheck="true" lang="pt-BR"
+        aria-label="Texto da nota em Markdown"
+        placeholder="Escreva em Markdown. [[Nome da nota]] cria uma aresta."></textarea>
+      <div class="ed-rodape">
+        <span class="ed-msg" id="ed-msg" aria-live="polite"></span>
+        <span class="ed-dica">Ctrl+S salva · Esc cancela</span>
+        <button type="button" class="ed-cancelar" id="ed-cancelar">Cancelar</button>
+        <button type="button" class="ed-salvar" id="ed-salvar" disabled>Salvar</button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

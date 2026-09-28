@@ -1,0 +1,4 @@
+---
+slug: idempotencia
+status: vazio
+---

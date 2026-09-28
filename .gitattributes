@@ -1,0 +1,8 @@
+# Tudo em LF, inclusive no Windows. O servidor grava as notas em LF; sem isto,
+# um clone com core.autocrlf=true teria as notas em CRLF, e cada nota salva
+# pelo caderno viraria um diff do arquivo inteiro.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.woff2 binary

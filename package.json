@@ -1,0 +1,20 @@
+{
+  "name": "caderno",
+  "private": true,
+  "description": "Caderno pessoal como grafo de rede vivo, com notas em Markdown e física evoluída por algoritmo genético.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "build": "node tools/build.mjs",
+    "dev": "node tools/build.mjs --watch",
+    "fix": "node tools/build.mjs --fix",
+    "test": "node --test",
+    "bundle": "node tools/build.mjs && node tools/bundle.mjs",
+    "evolve": "node tools/evolve.mjs",
+    "relatorio": "node tools/relatorio.mjs"
+  },
+  "license": "MIT"
+}

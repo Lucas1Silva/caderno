@@ -1,0 +1,62 @@
+name: Testar e publicar
+
+# Dois trabalhos:
+#   testes    roda sempre, em todo push e pull request.
+#   publicar  só roda se o repositório for PÚBLICO. No plano Free do GitHub,
+#             Pages não funciona em repositório privado — sem esta condição,
+#             todo push num repo privado terminaria com um "x" vermelho.
+#             Quando o repo virar público, a publicação liga sozinha.
+#
+# Aviso de build (link quebrado, slug ausente) não bloqueia nada: uma nota
+# com link quebrado não deve derrubar o site. Erro (nome ou slug repetido)
+# bloqueia, porque aí o grafo estaria genuinamente ambíguo.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Testes
+        run: node --test
+      - name: Gerar dados do vault
+        run: node tools/build.mjs
+
+  publicar:
+    needs: testes
+    if: ${{ github.event_name != 'pull_request' && !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Gerar dados do vault
+        run: node tools/build.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

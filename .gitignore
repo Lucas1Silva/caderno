@@ -1,0 +1,17 @@
+# Gerado a partir do vault: o CI e o servidor local regeram.
+src/data/caderno.gen.js
+dist/
+
+# Rascunhos do relatório de evolução
+evolucao/relatorio.fragmento.html
+
+# Estado de janela do Obsidian, se um dia o vault for aberto nele
+vault/.obsidian/workspace*.json
+vault/.obsidian/cache/
+
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+.vscode/
+.idea/
